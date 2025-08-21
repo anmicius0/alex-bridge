@@ -1,0 +1,203 @@
+/* src/app.css */
+/* Retained the existing @import, @theme, and basic tag styles */
+@import url('https://fonts.googleapis.com/css2?family=Baskervville:ital,wght@0,400;1,400&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+@import 'tailwindcss';
+
+@theme {
+  /* Primary Color Scale - More vibrant and sophisticated */
+  --color-primary-50: #f8faf7;
+  --color-primary-100: #f0f4ed;
+  --color-primary-200: #dfe8d8;
+  --color-primary-300: #c4d4b8;
+  --color-primary-400: #a4bc91;
+  --color-primary-500: #7fa06b;
+  --color-primary-600: #678553;
+  --color-primary-700: #536a44;
+  --color-primary-800: #445638;
+  --color-primary-900: #3a472f;
+  --color-primary-950: #1f2619;
+
+  /* Secondary Color Scale - Warmer grays */
+  --color-secondary-50: #fafaf9;
+  --color-secondary-100: #f2f2f0;
+  --color-secondary-200: #e6e5e1;
+  --color-secondary-300: #d1cfc8;
+  --color-secondary-400: #b5b2a8;
+  --color-secondary-500: #9a968a;
+  --color-secondary-600: #827f73;
+  --color-secondary-700: #6d6a5f;
+  --color-secondary-800: #5a574e;
+  --color-secondary-900: #4c4943;
+  --color-secondary-950: #2a2823;
+
+  /* Tertiary Color Scale - Sage green accent */
+  --color-tertiary-50: #f7f9f6;
+  --color-tertiary-100: #ecf2e7;
+  --color-tertiary-200: #d9e5d0;
+  --color-tertiary-300: #bed1ad;
+  --color-tertiary-400: #9fb884;
+  --color-tertiary-500: #829f60;
+  --color-tertiary-600: #6b8248;
+  --color-tertiary-700: #56673a;
+  --color-tertiary-800: #475431;
+  --color-tertiary-900: #3d472b;
+  --color-tertiary-950: #202516;
+
+  /* Surface Color Scale - Refined neutrals */
+  --color-surface-50: #fdfdfc;
+  --color-surface-100: #f9f9f8;
+  --color-surface-200: #f0f0ef;
+  --color-surface-300: #e2e1df;
+  --color-surface-400: #bbbab7;
+  --color-surface-500: #94938f;
+  --color-surface-600: #757470;
+  --color-surface-700: #605f5c;
+  --color-surface-800: #44433f;
+  --color-surface-900: #2d2c28;
+  --color-surface-950: #1a1917;
+
+  /* Accent Color Scale - Warmer orange */
+  --color-accent-50: #fef9f3;
+  --color-accent-100: #fdf1e4;
+  --color-accent-200: #fae0c4;
+  --color-accent-300: #f6ca99;
+  --color-accent-400: #f1aa6c;
+  --color-accent-500: #ea8c3f;
+  --color-accent-600: #d97425;
+  --color-accent-700: #b55d1a;
+  --color-accent-800: #924a1a;
+  --color-accent-900: #773f1a;
+  --color-accent-950: #40200c;
+
+  /* Warning Color Scale - Refined red */
+  --color-warning-50: #fef7f7;
+  --color-warning-100: #feecec;
+  --color-warning-200: #fedddd;
+  --color-warning-300: #fcc1c1;
+  --color-warning-400: #f89696;
+  --color-warning-500: #f06b6b;
+  --color-warning-600: #dc4747;
+  --color-warning-700: #b93535;
+  --color-warning-800: #972e2e;
+  --color-warning-900: #7d2b2b;
+  --color-warning-950: #441313;
+
+  /* Semantic Colors */
+  --color-success: #7fa06b;
+  --color-error: #dc4747;
+
+  /* Font Families */
+  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-family-serif: 'Baskervville', ui-serif, Georgia, serif;
+
+  /* Letter Spacing - Refined spacing */
+  --letter-spacing-tighter: -0.04em;
+  --letter-spacing-tight: -0.02em;
+  --letter-spacing-normal: 0em;
+  --letter-spacing-wide: 0.02em;
+  --letter-spacing-wider: 0.04em;
+  --letter-spacing-widest: 0.08em;
+
+  /* Enhanced shadows */
+  --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.08);
+  --shadow-medium: 0 4px 16px -4px rgba(0, 0, 0, 0.1);
+  --shadow-strong: 0 8px 32px -8px rgba(0, 0, 0, 0.15);
+}
+
+/* Basic Tag Styles */
+body {
+  @apply text-surface-900 bg-surface-50 min-h-screen;
+  font-family: var(--font-family-sans);
+  font-size: 1rem;
+  -webkit-font-smoothing: antialiased;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.7;
+  -moz-osx-font-smoothing: grayscale;
+  word-break: break-word; /* Fallback for unbreakable words */
+  hyphens: auto; /* Enable automatic hyphenation */
+}
+
+h1,
+h2,
+h3,
+h4 {
+  @apply text-surface-950;
+  font-family: var(--font-family-serif);
+  letter-spacing: -0.015em; /* Slightly tighter for elegance */
+  line-height: 1.2; /* Improved readability */
+}
+
+h1 {
+  @apply mt-8 mb-4 text-4xl md:text-5xl;
+  font-weight: 700; /* Reduced from 800 for sophistication */
+}
+
+h2 {
+  @apply mt-6 mb-3 text-3xl;
+  font-weight: 600; /* Consistent step down */
+}
+
+h3 {
+  @apply mt-4 mb-2 text-2xl;
+  font-weight: 500; /* Lighter for subheadings */
+}
+
+h4 {
+  @apply mt-3 mb-1.5 text-xl;
+  font-weight: 500;
+}
+
+section {
+  @apply container mx-auto my-24 px-6 md:my-32 md:px-8;
+}
+
+input,
+textarea,
+select {
+  @apply border-surface-300 text-surface-900 placeholder:text-surface-500 w-full rounded-xl border bg-white/80 px-5 py-4 text-base font-normal backdrop-blur-sm transition-all duration-300 ease-out outline-none;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  @apply border-primary-400 ring-primary-100 bg-white shadow-lg ring-4;
+  transform: translateY(-1px);
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+  @apply border-surface-400 shadow-md;
+  transform: translateY(-0.5px);
+}
+
+input::placeholder,
+textarea::placeholder {
+  @apply text-surface-500 opacity-70;
+}
+
+/* Custom Components */
+.card {
+  @apply border-surface-200/80 relative overflow-hidden rounded-2xl border bg-white/90 backdrop-blur-sm transition-all duration-300 ease-out;
+  box-shadow:
+    0 4px 16px -4px rgba(0, 0, 0, 0.08),
+    0 2px 8px -2px rgba(0, 0, 0, 0.06);
+}
+
+.card:hover {
+  @apply border-primary-200/80 ring-primary-100/50 shadow-xl ring-1;
+  box-shadow:
+    0 8px 32px -8px rgba(0, 0, 0, 0.12),
+    0 4px 16px -4px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px) scale(1.01);
+}
+
+.card:focus-within {
+  @apply ring-primary-300/60 ring-2 outline-none;
+  transform: translateY(-2px);
+}
