@@ -6,6 +6,7 @@
   import IconBox from '$lib/components/ui/IconBox.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import type { FirebaseError } from 'firebase/app';
+  import { COLLECTIONS } from '$lib/constants';
 
   let email = $state('');
   let password = $state('');
@@ -55,7 +56,7 @@
     const user = userCredential.user;
 
     if (user) {
-      await setDoc(doc(db, 'userMeta', user.uid), {
+      await setDoc(doc(db, COLLECTIONS.USER_META, user.uid), {
         uid: user.uid,
         email: user.email,
         phone,

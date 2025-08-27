@@ -11,10 +11,11 @@ export type FirebaseFile = {
 /** Represents a holiday (travel package). */
 export type Holiday = {
   id: string;
-  name: string;
+  name:string;
   shortDescription: string;
   longDescription: string;
   price: number;
+  startDate: string;
   image?: FirebaseFile[];
   files?: FirebaseFile[];
 };

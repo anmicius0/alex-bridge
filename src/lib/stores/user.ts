@@ -3,6 +3,7 @@ import { type Writable, writable } from 'svelte/store';
 import { onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth';
 import { auth, db } from '$lib/client/firebase.client';
 import { doc, type DocumentSnapshot, getDoc } from 'firebase/firestore';
+import { COLLECTIONS } from '$lib/constants'; // Import constants
 
 // Define interfaces for type safety
 export interface UserMeta {
@@ -34,8 +35,8 @@ onAuthStateChanged(auth, async (firebaseUser) => {
 
   if (firebaseUser) {
     try {
-      // Fetch user metadata from Firestore
-      const userRef = doc(db, 'userMeta', firebaseUser.uid);
+      // Fetch user metadata from Firestore using the centralized constant
+      const userRef = doc(db, COLLECTIONS.USER_META, firebaseUser.uid);
       const userSnap: DocumentSnapshot = await getDoc(userRef);
 
       if (userSnap.exists()) {

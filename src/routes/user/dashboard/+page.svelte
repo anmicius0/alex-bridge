@@ -3,15 +3,36 @@
   import { signOut } from 'firebase/auth';
   import { goto } from '$app/navigation';
   import { authStore } from '$lib/stores/user.js';
-  import { doc, updateDoc } from 'firebase/firestore';
+  import {
+    doc,
+    updateDoc,
+    collection,
+    query,
+    where,
+    getDocs,
+    getDoc,
+    type Timestamp,
+  } from 'firebase/firestore';
   import IconBox from '$lib/components/ui/IconBox.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import { COLLECTIONS } from '$lib/constants';
+  import { enhance } from '$app/forms';
+  import ImageCard from '$lib/components/ui/ImageCard.svelte';
+  import type { Holiday } from '$lib/types';
 
   let editMode = $state(false);
   let newEmail = $state('');
   let newName = $state('');
   let newPhone = $state('');
-  let newAddress = $state(''); // Added address field
+  let newAddress = $state('');
+
+  // --- New state for holiday registrations ---
+  type RegisteredHoliday = Holiday & { registrationId: string };
+  let registeredHolidays = $state<RegisteredHoliday[]>([]);
+  let holidaysLoading = $state(true);
+  let cancellationLoading = $state(''); // Holds the ID of the registration being cancelled
+  let idToken = $state('');
+  // ------------------------------------------
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -20,24 +41,98 @@
 
   const handleUpdate = async () => {
     if ($authStore.user && $authStore.firebaseUser) {
-      // Changed from 'users' to 'userMeta' and use uid as document ID
-      const userRef = doc(db, 'userMeta', $authStore.firebaseUser.uid);
+      const userRef = doc(db, COLLECTIONS.USER_META, $authStore.firebaseUser.uid);
       await updateDoc(userRef, {
         email: newEmail,
         name: newName,
         phone: newPhone,
-        address: newAddress, // Added address update
+        address: newAddress,
       });
       editMode = false;
     }
   };
+
+  // Get user ID token for form submissions
+  $effect(() => {
+    const unsub = auth.onIdTokenChanged(async (user) => {
+      if (user) {
+        idToken = await user.getIdToken();
+      } else {
+        idToken = '';
+      }
+    });
+    return () => unsub();
+  });
+
+  // Fetch registered holidays when user is available
+  $effect(() => {
+    const fetchRegisteredHolidays = async () => {
+      if (!$authStore.firebaseUser) {
+        registeredHolidays = [];
+        holidaysLoading = false;
+        return;
+      }
+
+      holidaysLoading = true;
+      try {
+        const registrationsQuery = query(
+          collection(db, COLLECTIONS.HOLIDAY_REGISTRATIONS),
+          where('uid', '==', $authStore.firebaseUser.uid),
+        );
+        const registrationsSnapshot = await getDocs(registrationsQuery);
+
+        if (registrationsSnapshot.empty) {
+          registeredHolidays = [];
+          holidaysLoading = false;
+          return;
+        }
+
+        const holidaysPromises = registrationsSnapshot.docs.map(async (regDoc) => {
+          const registration = regDoc.data();
+          const holidayRef = doc(db, COLLECTIONS.HOLIDAYS, registration.holidayId);
+          const holidaySnap = await getDoc(holidayRef);
+
+          if (holidaySnap.exists()) {
+            const holidayData = holidaySnap.data();
+            const startDateTimestamp = holidayData.startDate as Timestamp;
+            const startDate = startDateTimestamp?.toDate();
+            const now = new Date();
+
+            // Filter out past holidays on the client
+            if (startDate && startDate < now) {
+              return null;
+            }
+
+            return {
+              ...(holidayData as Holiday),
+              id: holidaySnap.id,
+              startDate: startDate ? startDate.toISOString() : '', // Standardize to ISO string
+              registrationId: regDoc.id, // Pass registration ID for the cancel action
+            };
+          }
+          return null;
+        });
+
+        const resolvedHolidays = (await Promise.all(holidaysPromises)).filter(
+          (h): h is RegisteredHoliday => h !== null,
+        );
+        registeredHolidays = resolvedHolidays;
+      } catch (err) {
+        console.error('Error fetching registered holidays:', err);
+      } finally {
+        holidaysLoading = false;
+      }
+    };
+
+    fetchRegisteredHolidays();
+  });
 
   $effect(() => {
     if ($authStore.user) {
       newEmail = $authStore.user.email;
       newName = $authStore.user.name;
       newPhone = $authStore.user.phone;
-      newAddress = $authStore.user.address || ''; // Added address initialization
+      newAddress = $authStore.user.address || '';
     }
   });
 </script>
@@ -139,6 +234,63 @@
           </div>
         {/if}
       </div>
+
+      <!-- NEW: Registered Holidays Section -->
+      <div class="animate-slide-up card mb-8 p-8">
+        <div class="mb-5 flex items-center gap-3">
+          <h2>Meine angemeldeten Reisen</h2>
+        </div>
+        {#if holidaysLoading}
+          <p>Lade deine Reisen...</p>
+        {:else if registeredHolidays.length > 0}
+          <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+            {#each registeredHolidays as holiday (holiday.registrationId)}
+              <ImageCard
+                images={holiday.image?.map((img) => img.downloadURL) ?? []}
+                title={holiday.name}
+                description={holiday.shortDescription}
+              >
+                <form
+                  method="POST"
+                  action="?/cancelRegistration"
+                  use:enhance={() => {
+                    cancellationLoading = holiday.registrationId;
+                    return async ({ update, result }) => {
+                      await update();
+                      cancellationLoading = '';
+                      if (result.type === 'success') {
+                        // Optimistically update UI
+                        registeredHolidays = registeredHolidays.filter(
+                          (h) => h.registrationId !== holiday.registrationId,
+                        );
+                      }
+                    };
+                  }}
+                >
+                  <input type="hidden" name="registrationId" value={holiday.registrationId} />
+                  <input type="hidden" name="idToken" bind:value={idToken} />
+                  <Button
+                    variant="danger"
+                    type="submit"
+                    disabled={cancellationLoading === holiday.registrationId}
+                    text={cancellationLoading === holiday.registrationId
+                      ? 'Wird storniert...'
+                      : 'Anmeldung stornieren'}
+                  />
+                </form>
+              </ImageCard>
+            {/each}
+          </div>
+        {:else}
+          <p class="text-surface-600">
+            Sie sind derzeit für keine Reisen angemeldet.
+            <a href="/holidays" class="text-primary-600 hover:underline"
+              >Entdecken Sie unsere Reiseangebote!</a
+            >
+          </p>
+        {/if}
+      </div>
+
       <Button text="Abmelden" variant="danger" onclick={handleLogout} />
     {:else}
       <div class="animate-slide-up card p-10 text-center">
