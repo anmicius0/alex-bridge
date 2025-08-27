@@ -18,7 +18,6 @@
   type DropdownMenu = { title: string; links: NavLink[] };
 
   const navLinks: NavLink[] = [
-    { href: '/about', text: 'Über mich' },
     { href: '/holidays', text: 'Reisen' },
     { href: '/files', text: 'Dateien' },
     // { href: '/news', text: 'News' }

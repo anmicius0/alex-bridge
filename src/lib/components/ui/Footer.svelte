@@ -8,7 +8,6 @@
       &copy; {new Date().getFullYear()} Bridge mit Alexander. Alle Rechte vorbehalten.
     </p>
     <div class="mt-4 flex justify-center gap-4">
-      <a href="/about" class="text-surface-700 hover:text-primary-600 transition">Über mich</a>
       <a href="/holidays" class="text-surface-700 hover:text-primary-600 transition">Reisen</a>
       <a href="/calendar/online" class="text-surface-700 hover:text-primary-600 transition"
         >Online-Kurse</a
