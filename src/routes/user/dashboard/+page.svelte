@@ -19,12 +19,13 @@
   import { enhance } from '$app/forms';
   import ImageCard from '$lib/components/ui/ImageCard.svelte';
   import type { Holiday } from '$lib/types';
+  import { toastStore } from '$lib/stores/toasts';
 
-  let editMode = $state(false);
   let newEmail = $state('');
   let newName = $state('');
   let newPhone = $state('');
   let newAddress = $state('');
+  let updateLoading = $state(false);
 
   // --- New state for holiday registrations ---
   type RegisteredHoliday = Holiday & { registrationId: string };
@@ -41,14 +42,22 @@
 
   const handleUpdate = async () => {
     if ($authStore.user && $authStore.firebaseUser) {
-      const userRef = doc(db, COLLECTIONS.USER_META, $authStore.firebaseUser.uid);
-      await updateDoc(userRef, {
-        email: newEmail,
-        name: newName,
-        phone: newPhone,
-        address: newAddress,
-      });
-      editMode = false;
+      updateLoading = true;
+      try {
+        const userRef = doc(db, COLLECTIONS.USER_META, $authStore.firebaseUser.uid);
+        await updateDoc(userRef, {
+          email: newEmail,
+          name: newName,
+          phone: newPhone,
+          address: newAddress,
+        });
+        toastStore.add('Profil erfolgreich aktualisiert', 'success');
+      } catch (err) {
+        console.error('Error updating profile:', err);
+        toastStore.add('Fehler beim Aktualisieren des Profils', 'error');
+      } finally {
+        updateLoading = false;
+      }
     }
   };
 
@@ -75,6 +84,14 @@
 
       holidaysLoading = true;
       try {
+        // NOTE on Data Fetching Strategy:
+        // This pattern fetches registration documents and then fetches each holiday
+        // document individually (known as an N+1 query problem). For a small number of
+        // user registrations, this is acceptable and simple to implement.
+        // For future scaling, consider denormalizing essential holiday data (like name,
+        // image, and startDate) directly into the registration document itself.
+        // This would reduce N+1 reads to a single query, improving performance
+        // and reducing Firestore costs at scale.
         const registrationsQuery = query(
           collection(db, COLLECTIONS.HOLIDAY_REGISTRATIONS),
           where('uid', '==', $authStore.firebaseUser.uid),
@@ -157,82 +174,56 @@
         <div class="mb-5 flex items-center gap-3">
           <h2>Profilinformationen</h2>
         </div>
-        {#if editMode}
-          <form onsubmit={handleUpdate} class="space-y-4">
-            <div class="grid gap-4 md:grid-cols-2">
-              <div>
-                <label for="email" class="text-surface-700 mb-1.5 block text-xs font-bold">
-                  E-Mail
-                </label>
-                <input id="email" type="email" bind:value={newEmail} class="w-full" />
-              </div>
-
-              <div>
-                <label for="name" class="text-surface-700 mb-1.5 block text-xs font-bold">
-                  Name
-                </label>
-                <input id="name" type="text" bind:value={newName} class="w-full" />
-              </div>
-
-              <div>
-                <label for="phone" class="text-surface-700 mb-1.5 block text-xs font-bold">
-                  Telefon
-                </label>
-                <input id="phone" type="tel" bind:value={newPhone} class="w-full" />
-              </div>
-
-              <div>
-                <label for="address" class="text-surface-700 mb-1.5 block text-xs font-bold">
-                  Adresse <span class="text-surface-500 text-xs font-normal">(für Rechnungen)</span>
-                </label>
-                <input
-                  id="address"
-                  type="text"
-                  bind:value={newAddress}
-                  class="w-full"
-                  placeholder="Musterstraße 12, 10115 Berlin, Deutschland"
-                />
-              </div>
+        <form
+          onsubmit={(e) => {
+            e.preventDefault();
+            handleUpdate();
+          }}
+          class="space-y-4"
+        >
+          <div class="grid gap-4 md:grid-cols-2">
+            <div>
+              <label for="email" class="text-surface-700 mb-1.5 block text-xs font-bold">
+                E-Mail
+              </label>
+              <input id="email" type="email" bind:value={newEmail} class="w-full" />
             </div>
-            <div class="flex justify-end gap-2 pt-3">
-              <Button type="submit" text="Änderungen speichern" />
-              <Button text="Abbrechen" variant="secondary" onclick={() => (editMode = false)} />
+
+            <div>
+              <label for="name" class="text-surface-700 mb-1.5 block text-xs font-bold">
+                Name
+              </label>
+              <input id="name" type="text" bind:value={newName} class="w-full" />
             </div>
-          </form>
-        {:else}
-          <div class="space-y-4">
-            <div class="grid gap-4 md:grid-cols-2">
-              <div class="card p-3">
-                <div class="text-surface-600 mb-1.5 text-xs font-bold">E-Mail</div>
-                <div class="text-base font-semibold">{$authStore.user.email}</div>
-              </div>
-              <div class="card p-3">
-                <div class="text-surface-600 mb-1.5 text-xs font-bold">Name</div>
-                <div class="text-base font-semibold">
-                  {$authStore.user.name || 'Nicht angegeben'}
-                </div>
-              </div>
-              <div class="card p-3">
-                <div class="text-surface-600 mb-1.5 text-xs font-bold">Telefon</div>
-                <div class="text-base font-semibold">
-                  {$authStore.user.phone || 'Nicht angegeben'}
-                </div>
-              </div>
-              <div class="card p-3">
-                <div class="text-surface-600 mb-1.5 text-xs font-bold">
-                  Adresse
-                  <span class="text-surface-500 text-xs font-normal">(für Rechnungen)</span>
-                </div>
-                <div class="text-base font-semibold">
-                  {$authStore.user.address || 'Nicht angegeben'}
-                </div>
-              </div>
+
+            <div>
+              <label for="phone" class="text-surface-700 mb-1.5 block text-xs font-bold">
+                Telefon
+              </label>
+              <input id="phone" type="tel" bind:value={newPhone} class="w-full" />
             </div>
-            <div class="flex justify-end pt-3">
-              <Button text="Profil bearbeiten" onclick={() => (editMode = true)} />
+
+            <div>
+              <label for="address" class="text-surface-700 mb-1.5 block text-xs font-bold">
+                Adresse <span class="text-surface-500 text-xs font-normal">(für Rechnungen)</span>
+              </label>
+              <input
+                id="address"
+                type="text"
+                bind:value={newAddress}
+                class="w-full"
+                placeholder="Musterstraße 12, 10115 Berlin, Deutschland"
+              />
             </div>
           </div>
-        {/if}
+          <div class="flex justify-end gap-2 pt-3">
+            <Button
+              type="submit"
+              text={updateLoading ? 'Wird gespeichert...' : 'Änderungen speichern'}
+              disabled={updateLoading}
+            />
+          </div>
+        </form>
       </div>
 
       <!-- NEW: Registered Holidays Section -->
@@ -258,11 +249,26 @@
                     return async ({ update, result }) => {
                       await update();
                       cancellationLoading = '';
-                      if (result.type === 'success') {
-                        // Optimistically update UI
-                        registeredHolidays = registeredHolidays.filter(
-                          (h) => h.registrationId !== holiday.registrationId,
-                        );
+
+                      // Type guard: Check if the action was successful and has data.
+                      if (result.type === 'success' && result.data) {
+                        // Now check the custom `success` property from your server action.
+                        if (result.data.success) {
+                          // Optimistically update the UI.
+                          registeredHolidays = registeredHolidays.filter(
+                            (h) => h.registrationId !== holiday.registrationId,
+                          );
+                          toastStore.add(result.data.message as string, 'success');
+                        } else {
+                          // Handle cases where the action ran but returned a failure message.
+                          toastStore.add(
+                            (result.data.error as string) || 'Stornierung fehlgeschlagen',
+                            'error',
+                          );
+                        }
+                      } else if (result.type === 'failure') {
+                        // Handle server-level failures (e.g., a 4xx or 5xx response).
+                        toastStore.add('Stornierung fehlgeschlagen', 'error');
                       }
                     };
                   }}

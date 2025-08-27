@@ -11,7 +11,7 @@
     href?: string;
     variant?: 'primary' | 'secondary' | 'danger';
     text?: string;
-    onclick?: () => void;
+    onclick?: (event: MouseEvent) => void;
     disabled?: boolean;
     type?: 'button' | 'submit';
   } = $props();
@@ -32,14 +32,29 @@
   };
 
   const classes = `${baseClasses} ${variantClasses[variant]}`;
+
+  function handleClick(event: MouseEvent) {
+    if (disabled) {
+      event.preventDefault();
+      return;
+    }
+    onclick(event);
+  }
 </script>
 
 {#if href}
-  <a {href} class={classes} {onclick} aria-label={text} class:pointer-events-none={disabled}>
+  <a
+    {href}
+    class={classes}
+    onclick={handleClick}
+    aria-label={text}
+    aria-disabled={disabled}
+    class:pointer-events-none={disabled}
+  >
     {text}
   </a>
 {:else}
-  <button {type} class={classes} {onclick} {disabled} aria-label={text}>
+  <button {type} class={classes} onclick={handleClick} {disabled} aria-label={text}>
     {text}
   </button>
 {/if}

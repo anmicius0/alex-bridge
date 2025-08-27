@@ -139,6 +139,7 @@
             placeholder="du@beispiel.de"
             required
             type="email"
+            aria-invalid={!!errorMsg}
           />
         </div>
 
@@ -153,6 +154,7 @@
             placeholder="Geben Sie Ihr Passwort ein"
             required
             type="password"
+            aria-invalid={!!errorMsg}
           />
         </div>
 
@@ -211,7 +213,7 @@
         {/if}
 
         {#if errorMsg}
-          <div class="card border border-red-200 bg-red-50 p-4">
+          <div class="card border border-red-200 bg-red-50 p-4" role="alert">
             <p class="text-warning-700 text-center text-sm font-semibold">{errorMsg}</p>
           </div>
         {/if}

@@ -13,6 +13,7 @@
   import { collection, query, where, getDocs } from 'firebase/firestore';
   import { enhance } from '$app/forms';
   import { COLLECTIONS } from '$lib/constants';
+  import { toastStore } from '$lib/stores/toasts';
 
   let { data, form } = $props<{ data: PageData; form?: ActionData }>();
 
@@ -27,6 +28,18 @@
   let isRegistered = $state<boolean | null>(null); // null = loading
   let registrationLoading = $state(false);
   let cancellationLoading = $state(false);
+
+  // Show toast notifications based on form action results
+  $effect(() => {
+    if (form?.success && form.message) {
+      toastStore.add(form.message, 'success');
+      form = undefined; // Clear form state to prevent re-showing toast on navigation
+    }
+    if (form?.error) {
+      toastStore.add(form.error, 'error');
+      form = undefined; // Clear form state
+    }
+  });
 
   // Re-check registration status whenever the user or form outcome changes
   $effect(() => {

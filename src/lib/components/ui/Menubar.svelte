@@ -11,6 +11,7 @@
 
   afterNavigate(({ to }) => {
     if (to) pathname = to.url.pathname;
+    mobileMenuOpen = false; // Close mobile menu on navigation
   });
 
   type NavLink = { href: string; text: string };
@@ -32,6 +33,18 @@
 
   function isActive(href: string): boolean {
     return pathname === href;
+  }
+
+  function getLinkClasses(href: string, isMobile = false): string {
+    const baseDesktop =
+      'hover:bg-surface-50/50 hover:text-primary-500 rounded-lg px-4 py-3 transition duration-200';
+    const baseMobile =
+      'text-surface-700 hover:bg-surface-50/50 hover:text-primary-500 rounded-lg p-4 transition duration-200';
+    const activeClasses = 'bg-surface-50/50 text-primary-500 font-bold';
+
+    const base = isMobile ? baseMobile : baseDesktop;
+
+    return `${base} ${isActive(href) ? activeClasses : ''}`;
   }
 
   function toggleMenu(menuTitle: string | null): void {
@@ -60,14 +73,7 @@
     <div class="text-surface-700 hidden items-center gap-3 lg:flex">
       <nav class="flex items-center gap-2">
         {#each navLinks as link (link.href)}
-          <a
-            href={link.href}
-            class="hover:bg-surface-50/50 hover:text-primary-500 rounded-lg px-4 py-3 transition duration-200 {isActive(
-              link.href,
-            )
-              ? 'bg-surface-50/50 text-primary-500 font-bold'
-              : ''}"
-          >
+          <a href={link.href} class={getLinkClasses(link.href)}>
             {link.text}
           </a>
         {/each}
@@ -156,15 +162,7 @@
   {#if mobileMenuOpen}
     <nav class="border-surface-200/80 flex flex-col gap-4 border-t px-4 pt-4 pb-6 lg:hidden">
       {#each navLinks as link (link.href)}
-        <a
-          href={link.href}
-          class="text-surface-700 hover:bg-surface-50/50 hover:text-primary-500 rounded-lg p-4 transition duration-200 {isActive(
-            link.href,
-          )
-            ? 'bg-surface-50/50 text-primary-500 font-bold'
-            : ''}"
-          onclick={() => (mobileMenuOpen = false)}
-        >
+        <a href={link.href} class={getLinkClasses(link.href, true)}>
           {link.text}
         </a>
       {/each}
@@ -180,7 +178,6 @@
               )
                 ? 'bg-surface-50/50 text-primary-500 border-primary-500 border-l-4 font-bold'
                 : ''}"
-              onclick={() => (mobileMenuOpen = false)}
             >
               {link.text}
             </a>
