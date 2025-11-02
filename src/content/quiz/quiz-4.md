@@ -1,11 +1,15 @@
 ---
-title: 'Quiz 4'
+title: Quiz 4
 choices:
-  - choiceText: 'PASSE'
-    isCorrect: true
-  - choiceText: '3♣'
+  - choiceText: PASSE
     isCorrect: false
-explanation: 'PASSE ist korrekt, da die eigene Hand zu schwach für ein weiteres Gebot ist.'
+  - choiceText: 3♣
+    isCorrect: false
+  - choiceText: 3♥
+    isCorrect: true
+  - choiceText: 3♠
+    isCorrect: false
+explanation: 3♥, Transfer auf Pik
 ---
 
 ### Ihr Partner eröffnet mit 2SA. Was reizen Sie mit folgender Hand?
