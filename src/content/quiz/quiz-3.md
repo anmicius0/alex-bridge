@@ -1,15 +1,15 @@
 ---
-title: 'Quiz 3'
+title: Quiz 3
 choices:
-  - choiceText: 'PASSE'
+  - choiceText: PASSE
+    isCorrect: false
+  - choiceText: 3♥
+    isCorrect: false
+  - choiceText: 3SA
     isCorrect: true
-  - choiceText: '3♥'
+  - choiceText: 4♣
     isCorrect: false
-  - choiceText: '3SA'
-    isCorrect: false
-  - choiceText: '4♣'
-    isCorrect: false
-explanation: 'PASSE ist die richtige Antwort auf das Sperrgebot des Partners.'
+explanation: 3SA, wir hoffen auf 9 Stiche über Treff!
 ---
 
 ### Ihr Partner eröffnet mit 3♣. Was reizen Sie mit folgender Hand:
