@@ -7,13 +7,20 @@ import '../styles/global.css';
 import '../styles/tailwind.css';
 
 // Props:
-// - title: string
-// - listTitle?: string  -> when provided, the main slot will be wrapped with ListLayout
-// - listIntro?: string
-// - listActions?: any
-// - listMaxWidth?: string
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  listTitle?: string | null;
+  listIntro?: string | null;
+  listActions?: any;
+  listMaxWidth?: string;
+}
+
 const {
   title,
+  description = 'Alexander Smirnov ist Ihr professioneller Bridge-Lehrer & Coach (Deutscher Meister). Buchen Sie Premium-Bridge-Kurse, Seminare & Reisen in Lübeck, Travemünde und Online.',
+  ogImage = '/alex/square.webp',
   listTitle = null,
   listIntro = null,
   listActions = null,
@@ -28,10 +35,7 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- New SEO Meta Tags for Bridge Teacher Discoverability -->
-    <meta
-      name="description"
-      content="Alexander Smirnov ist Ihr professioneller Bridge-Lehrer & Coach (Deutscher Meister). Buchen Sie Premium-Bridge-Kurse, Seminare & Reisen in Lübeck, Travemünde und Online."
-    />
+    <meta name="description" content={description} />
     <meta
       name="keywords"
       content="Bridge Lehrer, Bridge Kurs, Bridge Unterricht, Bridge Coaching, Alexander Smirnov, Bridge Reisen, Lübeck, Travemünde, Timmendorfer Strand, Alleinspiel, Reizung, Gegenspiel"
@@ -39,12 +43,13 @@ const {
 
     <!-- Open Graph for Social Media Sharing (Stronger SEO Signal) -->
     <meta property="og:title" content={title} />
-    <meta
-      property="og:description"
-      content="Alexander Smirnov ist Ihr professioneller Bridge-Lehrer & Coach (Deutscher Meister). Buchen Sie Premium-Bridge-Kurse, Seminare & Reisen in Lübeck, Travemünde und Online."
-    />
+    <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="de_DE" />
+    <meta
+      property="og:image"
+      content={new URL(ogImage, Astro.site || Astro.url)}
+    />
     <meta name="author" content="Alexander Smirnov" />
 
     <meta

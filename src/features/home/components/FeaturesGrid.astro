@@ -1,0 +1,91 @@
+---
+/**
+ * FeaturesGrid Component
+ * Optimized for long German words and robust layout
+ */
+
+interface Props {
+  features: Array<{
+    icon: string;
+    title: string;
+    description: string;
+  }>;
+  class?: string;
+}
+
+const { features, class: extraClass = '' } = Astro.props;
+import IconBox from '../../../components/ui/IconBox.astro';
+---
+
+<div class={`grid gap-y-16 gap-x-8 md:grid-cols-3 ${extraClass}`}>
+  {
+    features.map((feature) => (
+      <div class="feature-card">
+        <div class="icon-wrapper">
+          <IconBox
+            icon={feature.icon}
+            size="xs"
+            class="shadow-[3px_3px_0_#000]"
+          />
+        </div>
+
+        <div class="content">
+          <h3 class="feature-title">{feature.title}</h3>
+          <p class="feature-description">{feature.description}</p>
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .feature-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2.25rem 1.25rem 1.5rem;
+    background: white;
+    border: 3px solid #000;
+    border-radius: 1.25rem;
+    box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+    transition: all 0.2s ease-in-out;
+  }
+
+  .feature-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .feature-card:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .icon-wrapper {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+  }
+
+  .feature-title {
+    font-size: 1.25rem;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+    text-transform: uppercase;
+  }
+
+  .feature-description {
+    color: #374151;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+</style>

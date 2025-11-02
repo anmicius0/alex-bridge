@@ -1,0 +1,99 @@
+---
+import { Image } from 'astro:assets';
+import DateDisplay from './DateDisplay.astro';
+
+interface Props {
+  title: string;
+  href?: string;
+  date?: Date | string;
+  dateRange?: { start: Date | string; end: Date | string };
+  description?: string;
+  image?: string;
+  images?: string[];
+  imagePosition?: 'top' | 'left';
+  showArrow?: boolean;
+  class?: string;
+}
+
+const {
+  title,
+  href,
+  date,
+  dateRange,
+  description,
+  image,
+  images = [],
+  imagePosition = 'top',
+  showArrow = false,
+  class: extraClass,
+} = Astro.props;
+
+const displayImage = images?.length > 0 ? images[0] : image;
+const hasImage = !!displayImage;
+const isHorizontal = hasImage && imagePosition === 'left';
+
+const containerClasses = [
+  'relative bg-white border-[3px] border-black rounded-2xl p-5 transition-all duration-200',
+  href
+    ? 'cursor-pointer shadow-[3px_3px_0_#000] hover:shadow-[6px_6px_0_#000] hover:-translate-x-[3px] hover:-translate-y-[3px] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]'
+    : 'shadow-[3px_3px_0_#000]',
+  isHorizontal
+    ? 'flex flex-col sm:flex-row items-start sm:items-center gap-5'
+    : 'block',
+]
+  .filter(Boolean)
+  .join(' ');
+
+const Tag = href ? 'a' : 'div';
+---
+
+<Tag href={href} class={`${containerClasses} ${extraClass}`}>
+  {
+    displayImage && (
+      <div
+        class={
+          isHorizontal
+            ? 'flex-shrink-0 overflow-hidden rounded-xl border-[3px] border-black w-28 h-28 md:w-40 md:h-40'
+            : 'w-full overflow-hidden rounded-xl border-[3px] border-black mb-3'
+        }
+      >
+        <Image
+          src={displayImage}
+          alt={title}
+          class="object-cover w-full h-full"
+          width={600}
+          height={400}
+        />
+      </div>
+    )
+  }
+
+  <div class="flex-1">
+    <h3 class="mb-1 text-xl font-black tracking-tight leading-tight">
+      {title}
+    </h3>
+
+    {
+      (date || dateRange) && (
+        <p class="text-xs font-bold text-gray-600 mb-2 uppercase tracking-wide">
+          {date && <DateDisplay date={date} />}
+          {dateRange && (
+            <>
+              <DateDisplay date={dateRange.start} /> -{' '}
+              <DateDisplay date={dateRange.end} />
+            </>
+          )}
+        </p>
+      )
+    }
+
+    {
+      description && (
+        <p class="text-sm text-gray-700 leading-relaxed break-words">
+          {description}
+        </p>
+      )
+    }
+    <slot />
+  </div>
+</Tag>

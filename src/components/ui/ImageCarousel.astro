@@ -16,7 +16,7 @@ const validImages = images.filter((img) => img?.trim());
 
 {
   validImages.length > 0 && (
-    <div class={`image-carousel ${extraClass}`}>
+    <image-carousel class={`image-carousel block ${extraClass}`}>
       <div class="carousel-container">
         <div class="carousel-main media-frame">
           <div class="carousel-track">
@@ -70,7 +70,7 @@ const validImages = images.filter((img) => img?.trim());
           </div>
         </div>
       )}
-    </div>
+    </image-carousel>
   )
 }
 
@@ -94,7 +94,6 @@ const validImages = images.filter((img) => img?.trim());
     align-items: center;
     justify-content: center;
     background: var(--carousel-bg, #f8f8f8);
-    touch-action: pan-y;
     cursor: grab;
     user-select: none;
     width: 100%;
@@ -109,13 +108,22 @@ const validImages = images.filter((img) => img?.trim());
     display: flex;
     width: 100%;
     height: 100%;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+  }
+
+  .carousel-track::-webkit-scrollbar {
+    display: none; /* Hide scrollbar Chrome/Safari */
   }
 
   .carousel-image {
     flex: 0 0 100%;
     width: 100%;
     height: 100%;
+    scroll-snap-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -248,45 +256,37 @@ const validImages = images.filter((img) => img?.trim());
 </style>
 
 <script>
-  class ImageCarousel {
+  class ImageCarousel extends HTMLElement {
     private currentIndex = 0;
     private totalImages = 0;
-    private container: HTMLElement | null = null;
-    private carouselMain: HTMLElement | null = null;
     private carouselTrack: HTMLElement | null = null;
     private images: NodeListOf<HTMLElement> | undefined;
     private indicators: NodeListOf<Element> | undefined;
-    private touchStartX = 0;
-    private touchEndX = 0;
-    private isSwiping = false;
+    private scrollRaf = 0;
 
-    constructor(containerEl: HTMLElement) {
-      this.container = containerEl;
+    connectedCallback() {
       this.init();
     }
 
     private init() {
-      if (!this.container) return;
-
-      this.images = this.container.querySelectorAll('.carousel-image');
+      this.images = this.querySelectorAll('.carousel-image');
       this.totalImages = this.images.length;
 
       if (this.totalImages <= 1) return;
 
-      this.indicators = this.container.querySelectorAll('.indicator');
-      this.carouselMain = this.container.querySelector('.carousel-main');
-      this.carouselTrack = this.container.querySelector('.carousel-track');
+      this.indicators = this.querySelectorAll('.indicator');
+      this.carouselTrack = this.querySelector('.carousel-track');
 
       this.setupEventListeners();
     }
 
     private setupEventListeners() {
-      this.container
-        ?.querySelector('.carousel-btn-prev')
-        ?.addEventListener('click', () => this.previous());
-      this.container
-        ?.querySelector('.carousel-btn-next')
-        ?.addEventListener('click', () => this.next());
+      this.querySelector('.carousel-btn-prev')?.addEventListener('click', () =>
+        this.previous()
+      );
+      this.querySelector('.carousel-btn-next')?.addEventListener('click', () =>
+        this.next()
+      );
 
       this.indicators?.forEach((indicator, index) => {
         indicator.addEventListener('click', () => this.goToSlide(index));
@@ -294,17 +294,20 @@ const validImages = images.filter((img) => img?.trim());
 
       document.addEventListener('keydown', (e) => this.handleKeyboard(e));
 
-      // Add touch event listeners for swipe support
-      this.carouselMain?.addEventListener('touchstart', (e) =>
-        this.handleTouchStart(e)
-      );
-      this.carouselMain?.addEventListener('touchend', (e) =>
-        this.handleTouchEnd(e)
+      this.carouselTrack?.addEventListener(
+        'scroll',
+        () => this.handleScroll(),
+        { passive: true }
       );
 
       // Detect image aspect ratios and apply classes
       this.detectImageOrientations();
-      window.addEventListener('resize', () => this.detectImageOrientations());
+      window.addEventListener('resize', () => {
+        this.detectImageOrientations();
+        this.scrollToIndex(this.currentIndex, 'auto');
+      });
+
+      this.syncIndexToScroll();
     }
 
     // Determine whether images are landscape-ish (wider than tall) and set classes.
@@ -342,56 +345,26 @@ const validImages = images.filter((img) => img?.trim());
       });
     }
 
-    private handleTouchStart(e: TouchEvent) {
-      const touch = e.changedTouches?.[0];
-      if (touch) {
-        this.touchStartX = touch.screenX;
-        this.isSwiping = true;
-      }
-    }
-
-    private handleTouchEnd(e: TouchEvent) {
-      const touch = e.changedTouches?.[0];
-      if (touch) {
-        this.touchEndX = touch.screenX;
-        this.handleSwipe();
-        this.isSwiping = false;
-      }
-    }
-
-    private handleSwipe() {
-      const swipeThreshold = 50; // Minimum distance to be considered a swipe
-      const diff = this.touchStartX - this.touchEndX;
-
-      // Swipe left - show next image
-      if (diff > swipeThreshold) {
-        this.next();
-      }
-      // Swipe right - show previous image
-      else if (diff < -swipeThreshold) {
-        this.previous();
-      }
-    }
-
     private goToSlide(index: number) {
       if (index < 0 || index >= this.totalImages) return;
       this.currentIndex = index;
-      this.render();
+      this.scrollToIndex(index);
+      this.updateCounter();
+      this.updateIndicators();
     }
 
     private next() {
-      this.currentIndex = (this.currentIndex + 1) % this.totalImages;
-      this.render();
+      this.goToSlide((this.currentIndex + 1) % this.totalImages);
     }
 
     private previous() {
-      this.currentIndex =
-        (this.currentIndex - 1 + this.totalImages) % this.totalImages;
-      this.render();
+      this.goToSlide(
+        (this.currentIndex - 1 + this.totalImages) % this.totalImages
+      );
     }
 
     private handleKeyboard(e: KeyboardEvent) {
-      if (!this.container?.offsetParent) return;
+      if (!this.offsetParent) return;
 
       const key = e.key.toLowerCase();
       if (key === 'arrowright' || key === 'd') {
@@ -403,21 +376,38 @@ const validImages = images.filter((img) => img?.trim());
       }
     }
 
-    private render() {
-      this.updateImages();
+    private getSlideWidth() {
+      return this.carouselTrack?.clientWidth || 0;
+    }
+
+    private scrollToIndex(index: number, behavior: ScrollBehavior = 'smooth') {
+      if (!this.carouselTrack) return;
+      const width = this.getSlideWidth();
+      if (!width) return;
+      this.carouselTrack.scrollTo({ left: index * width, behavior });
+    }
+
+    private handleScroll() {
+      if (this.scrollRaf) return;
+      this.scrollRaf = window.requestAnimationFrame(() => {
+        this.scrollRaf = 0;
+        this.syncIndexToScroll();
+      });
+    }
+
+    private syncIndexToScroll() {
+      if (!this.carouselTrack) return;
+      const width = this.getSlideWidth();
+      if (!width) return;
+      const nextIndex = Math.round(this.carouselTrack.scrollLeft / width);
+      if (nextIndex === this.currentIndex) return;
+      this.currentIndex = nextIndex;
       this.updateCounter();
       this.updateIndicators();
     }
 
-    private updateImages() {
-      if (this.carouselTrack) {
-        const offset = -this.currentIndex * 100;
-        this.carouselTrack.style.transform = `translateX(${offset}%)`;
-      }
-    }
-
     private updateCounter() {
-      const counter = this.container?.querySelector('.current-index');
+      const counter = this.querySelector('.current-index');
       if (counter) counter.textContent = String(this.currentIndex + 1);
     }
 
@@ -428,7 +418,5 @@ const validImages = images.filter((img) => img?.trim());
     }
   }
 
-  document.querySelectorAll('.image-carousel').forEach((carousel) => {
-    new ImageCarousel(carousel as HTMLElement);
-  });
+  customElements.define('image-carousel', ImageCarousel);
 </script>

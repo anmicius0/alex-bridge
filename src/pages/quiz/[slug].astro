@@ -1,28 +1,20 @@
 ---
-import type { CollectionEntry } from 'astro:content';
-import { getCollection, render } from 'astro:content';
-import QuizQuestion from '../../components/quiz/QuizQuestion.astro';
+import { type CollectionEntry, render } from 'astro:content';
+import QuizQuestion from '../../features/quiz/components/QuizQuestion.astro';
+import { getSortedQuizzes } from '../../features/quiz/services/quizzes';
 import ContentLayout from '../../layouts/ContentLayout.astro';
-import { getEntrySlug, getEntrySlugs } from '../../services/content-slug';
 
 export async function getStaticPaths() {
-  const quizzes = (await getCollection('quiz')).sort((a, b) => {
-    const numA = parseInt(a.data.title.match(/\d+/)?.[0] ?? '0');
-    const numB = parseInt(b.data.title.match(/\d+/)?.[0] ?? '0');
-    return numB - numA;
-  });
-
-  const quizSlugs = getEntrySlugs(quizzes);
+  const quizzes = await getSortedQuizzes();
 
   return quizzes.map((quiz, index) => {
     const nextQuiz = index < quizzes.length - 1 ? quizzes[index + 1] : null;
-    const nextSlug = nextQuiz ? quizSlugs.get(nextQuiz) : null;
 
     return {
-      params: { slug: getEntrySlug(quiz) },
+      params: { slug: quiz.id },
       props: {
         quiz,
-        nextQuestionUrl: nextSlug ? `/quiz/${nextSlug}` : undefined,
+        nextQuestionUrl: nextQuiz ? `/quiz/${nextQuiz.id}` : undefined,
       },
     };
   });
@@ -34,9 +26,12 @@ type Props = {
 };
 const { quiz, nextQuestionUrl } = Astro.props;
 const { Content } = await render(quiz);
+
+const description = quiz.data.description || quiz.data.title;
+const ogImage = quiz.data.image;
 ---
 
-<ContentLayout entry={quiz}>
+<ContentLayout entry={quiz} description={description} ogImage={ogImage}>
   <!-- Main markdown content goes into the default slot -->
   <Content />
 

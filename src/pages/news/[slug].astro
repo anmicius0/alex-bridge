@@ -1,13 +1,12 @@
 ---
-import type { CollectionEntry } from 'astro:content';
-import { getCollection, render } from 'astro:content';
+import { type CollectionEntry, render } from 'astro:content';
+import { getAllNewsPosts } from '../../features/news/services/news';
 import ContentLayout from '../../layouts/ContentLayout.astro';
-import { getEntrySlug } from '../../services/content-slug';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('news');
+  const posts = await getAllNewsPosts();
   return posts.map((post) => ({
-    params: { slug: getEntrySlug(post) },
+    params: { slug: post.id },
     props: { post },
   }));
 }
@@ -15,8 +14,16 @@ export async function getStaticPaths() {
 type Props = { post: CollectionEntry<'news'> };
 const { post } = Astro.props;
 const { Content } = await render(post);
+
+// Use a simplified excerpt or description for SEO if available, or post.data.title
+const description = post.data.description || post.data.title;
+const ogImage =
+  post.data.image ||
+  (post.data.photos && post.data.photos.length > 0
+    ? post.data.photos[0]
+    : undefined);
 ---
 
-<ContentLayout entry={post}>
+<ContentLayout entry={post} description={description} ogImage={ogImage}>
   <Content />
 </ContentLayout>

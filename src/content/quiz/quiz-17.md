@@ -1,15 +1,15 @@
 ---
-title: 'Quiz 17'
+title: Quiz 17
 choices:
-  - choiceText: 'Passe'
+  - choiceText: Passe
     isCorrect: false
-  - choiceText: '5♠'
+  - choiceText: 5♣
     isCorrect: true
-  - choiceText: '5♦'
+  - choiceText: 5♦
     isCorrect: false
-  - choiceText: '5♥'
+  - choiceText: 5♥
     isCorrect: false
-explanation: '5♠ zeigt 3 Key Cards (Asse oder den ♥K)'
+explanation: 5♣ zeigt 3 Key Cards (Asse oder den ♥K)
 ---
 
 ### Die Reizung geht folgendermaßen:

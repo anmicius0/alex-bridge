@@ -9,21 +9,22 @@ choices:
     isCorrect: false
   - choiceText: 2SA
     isCorrect: false
-explanation: "2♦ zeigt mind. 4er Karo und 11+ FL, 2♥ würde 5er zeigen und zu
+explanation: '2♦ zeigt mind. 4er Karo und 11+ FL, 2♥ würde 5er zeigen und zu
   schwach sein. 2SA reizt man nicht mit einer 4er Coeur, da die Gefahr besteht,
-  dass der Coeurfit verloren geht. "
+  dass der Coeurfit verloren geht. '
 ---
+
 ### Ihr Partner eröffnet mit 1♣. Was reizen Sie mit folgender Hand?
 
 #### Ihre Hand
 
-* ♠ 7 6
-* ♥ K 6 4 2
-* ♦ A K 5 4
-* ♣ B 6 2
+- ♠ 7 6
+- ♥ K 6 4 2
+- ♦ A K 5 4
+- ♣ B 6 2
 
 #### Gebot
 
 | Partner | Sie |
 | ------- | --- |
-| 1♠      | ?   |
+| 1♠     | ?   |

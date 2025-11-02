@@ -10,7 +10,6 @@ type ContentItem =
 
 interface Props {
   items: ContentItem[];
-  slugMap: Map<any, string>;
   imagePosition?: 'top' | 'left';
   showArrow?: boolean;
   class?: string;
@@ -18,7 +17,6 @@ interface Props {
 
 const {
   items,
-  slugMap,
   imagePosition = 'top',
   showArrow = false,
   class: extraClass = '',
@@ -28,21 +26,27 @@ const {
 <div class={`flex flex-col gap-6 ${extraClass}`}>
   {
     items.map((item) => {
-      const slug = slugMap.get(item) ?? '';
-      const data = item.data as any; // Use 'any' for simplicity across different collection types
+      // Safely extract properties based on what exists on the data object
+      const title = item.data.title;
+      const date = 'date' in item.data ? item.data.date : undefined;
+      const startDate =
+        'startDate' in item.data ? item.data.startDate : undefined;
+      const endDate = 'endDate' in item.data ? item.data.endDate : undefined;
+      const photos = 'photos' in item.data ? item.data.photos : undefined;
+      const image = 'image' in item.data ? item.data.image : undefined;
 
       return (
         <Card
-          title={data.title}
-          href={`/${item.collection}/${slug}`}
-          date={data.date}
+          title={title}
+          href={`/${item.collection}/${item.id}`}
+          date={date}
           dateRange={
-            data.startDate && data.endDate
-              ? { start: data.startDate, end: data.endDate }
+            startDate && endDate
+              ? { start: startDate, end: endDate }
               : undefined
           }
-          images={data.photos}
-          image={data.image}
+          images={photos}
+          image={image}
           imagePosition={imagePosition}
           showArrow={showArrow}
         />

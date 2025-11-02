@@ -5,6 +5,8 @@
 // - pageTitle?: string (document title passed to Layout). If not provided, `title` is used.
 // - title: string (section title)
 // - intro?: string
+// - description?: string (SEO description)
+// - ogImage?: string (SEO OG Image)
 // - actions?: any
 // - maxWidth?: string (Tailwind max-width class, default 'max-w-3xl')
 // - isEmpty?: boolean (if true, shows standardized empty state instead of slot content)
@@ -14,6 +16,8 @@ const {
   pageTitle = null,
   title = '',
   intro = '',
+  description = null,
+  ogImage = null,
   actions = null,
   maxWidth = 'max-w-3xl',
   isEmpty = false,
@@ -22,7 +26,11 @@ const {
 const containerClass = `${maxWidth} mx-auto`;
 ---
 
-<Layout title={pageTitle ?? title}>
+<Layout
+  title={pageTitle ?? title}
+  description={description ?? intro ?? undefined}
+  ogImage={ogImage ?? undefined}
+>
   <section class="section">
     <div class={containerClass}>
       <div class="text-center mb-15">

@@ -110,7 +110,6 @@ Tip: `src/lib/env.ts` (if present) validates critical server env vars at startup
   - api/ (cors.ts, error-handler.ts)
   - ui/ (mobile-menu.ts, smooth-scroll.ts)
   - services/
-  - content-slug.ts
   - content/ (news, holiday, file)
   - pages/ (routes and api)
   - assets/ (images optimized by Astro)

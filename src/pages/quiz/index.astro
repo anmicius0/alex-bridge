@@ -1,16 +1,9 @@
 ---
-import { getCollection } from 'astro:content';
-import ContentList from '../../components/content/ContentList.astro';
+import ContentList from '../../components/ui/ContentList.astro';
+import { getSortedQuizzes } from '../../features/quiz/services/quizzes';
 import ListLayout from '../../layouts/ListLayout.astro';
-import { getEntrySlugs } from '../../services/content-slug';
 
-const quizzes = (await getCollection('quiz')).sort((a, b) => {
-  const numA = parseInt(a.data.title.match(/\d+/)?.[0] ?? '0');
-  const numB = parseInt(b.data.title.match(/\d+/)?.[0] ?? '0');
-  return numB - numA;
-});
-
-const quizSlugMap = getEntrySlugs(quizzes);
+const quizzes = await getSortedQuizzes();
 ---
 
 <ListLayout
@@ -20,5 +13,5 @@ const quizSlugMap = getEntrySlugs(quizzes);
   maxWidth="max-w-3xl"
   isEmpty={quizzes.length === 0}
 >
-  <ContentList items={quizzes} slugMap={quizSlugMap} showArrow={true} />
+  <ContentList items={quizzes} showArrow={true} />
 </ListLayout>

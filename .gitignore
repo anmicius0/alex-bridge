@@ -34,12 +34,6 @@ bun.lockb
 .vercel/
 
 # -------------------------
-# Compiled Assets (must be ignored)
-# -------------------------
-# SASS/CSS output - files created by "sass --watch src/styles:src/styles"
-src/styles/*.css
-
-# -------------------------
 # Repomix (Cleanup from template)
 # -------------------------
 repomix-output.md

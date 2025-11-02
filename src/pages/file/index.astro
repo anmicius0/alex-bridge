@@ -1,11 +1,10 @@
 ---
-import type { CollectionEntry } from 'astro:content';
-import { getCollection } from 'astro:content';
-import Card from '../../components/content/Card.astro';
 import Button from '../../components/ui/Button.astro';
+import Card from '../../components/ui/Card.astro';
+import { getSortedFiles } from '../../features/file/services/files';
 import ListLayout from '../../layouts/ListLayout.astro';
 
-const fileDocuments: CollectionEntry<'file'>[] = await getCollection('file');
+const fileDocuments = await getSortedFiles();
 ---
 
 <ListLayout

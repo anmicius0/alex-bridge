@@ -12,9 +12,11 @@ interface Props {
     | CollectionEntry<'holiday'>
     | CollectionEntry<'quiz'>
     | CollectionEntry<'file'>;
+  description?: string;
+  ogImage?: string;
 }
 
-const { entry } = Astro.props;
+const { entry, description, ogImage } = Astro.props;
 const { collection, data } = entry;
 
 // Type guards for different collection types
@@ -35,7 +37,11 @@ const backLink = `/${collection}`;
 const backText = `← Zurück zu ${collectionNameMap[collection as keyof typeof collectionNameMap] || 'Übersicht'}`;
 ---
 
-<Layout title={`${data.title} - Bridge mit Alexander`}>
+<Layout
+  title={`${data.title} - Bridge mit Alexander`}
+  description={description}
+  ogImage={ogImage}
+>
   <section class="section">
     <article class="max-w-3xl mx-auto">
       <!-- Back Link (Always present) -->
@@ -92,7 +98,10 @@ const backText = `← Zurück zu ${collectionNameMap[collection as keyof typeof 
       }
 
       <!-- Main Content Area (Slot for Markdown) -->
-      <div class="prose prose-lg prose-brutal max-w-none">
+      <!-- Added max-w-prose (limits width to ~65ch) and mx-auto to center the text -->
+      <div
+        class="prose prose-lg prose-brutal max-w-prose mx-auto leading-relaxed md:text-xl text-gray-800"
+      >
         <slot />
       </div>
 

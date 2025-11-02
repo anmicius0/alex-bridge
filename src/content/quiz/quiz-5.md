@@ -11,4 +11,5 @@ choices:
     isCorrect: false
 explanation: SPLINTER ist die korrekte Antwort.
 ---
+
 ### Welche Konvention gibt es tatsächlich?

@@ -35,14 +35,16 @@ const hasActiveChild = (children?: Array<{ path: string }>) =>
   children?.some((child) => isActive(child.path)) ?? false;
 ---
 
-<header class={`bg-white ${extraClass}`}>
+<header
+  class={`bg-white sticky top-0 z-50 border-b-[3px] border-black shadow-sm ${extraClass}`}
+>
   <nav
-    class="flex items-center justify-between max-w-4xl px-4 py-6 mx-auto lg:max-w-none lg:px-10 lg:py-10"
+    class="flex items-center justify-between max-w-4xl px-4 py-3 mx-auto lg:max-w-none lg:px-10 lg:py-4"
   >
     <!-- Logo -->
     <a href="/" class="flex items-center gap-3 group">
       <div
-        class="flex items-center justify-center w-10 h-10 text-lg leading-none transition border-2 border-black rounded-md shadow-none md:w-12 md:h-12 md:text-xl bg-brutalPink group-hover:shadow-brutalSm"
+        class="flex items-center justify-center w-9 h-9 text-base leading-none transition border-2 border-black rounded-md shadow-none md:w-10 md:h-10 md:text-lg bg-brutalPink group-hover:shadow-brutalSm"
       >
         B
       </div>

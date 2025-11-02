@@ -1,0 +1,176 @@
+---
+const {
+  choices = [],
+  explanation = '',
+  nextQuestionUrl,
+} = Astro.props as {
+  choices: { choiceText: string; isCorrect: boolean }[];
+  explanation: string;
+  nextQuestionUrl?: string;
+};
+const LABELS = Array.from({ length: choices.length }, (_, i) =>
+  String.fromCharCode(65 + i)
+);
+---
+
+<quiz-question data-explanation={explanation} class="block mb-8">
+  <div class="mb-6 space-y-3">
+    {
+      choices.map((choice, index) => (
+        <button
+          data-choice-index={String(index)}
+          data-is-correct={choice.isCorrect ? '1' : '0'}
+          class="quiz-btn relative w-full p-4 text-left bg-white border-[3px] border-black rounded-xl shadow-[3px_3px_0_#000] hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-[6px_6px_0_#000] active:translate-y-[2px] active:translate-x-[2px] active:shadow-none transition-all duration-200 cursor-pointer overflow-hidden"
+        >
+          <div class="flex items-center gap-4">
+            <span class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-sm font-black text-black bg-gray-200 border-2 border-black rounded-lg label-badge transition-colors">
+              {LABELS[index]}
+            </span>
+            <div class="flex-1">
+              <p class="text-base font-bold text-gray-900 leading-snug">
+                {choice.choiceText}
+              </p>
+            </div>
+            <span
+              class="flex-shrink-0 hidden text-2xl font-black status-icon"
+              aria-hidden="true"
+            />
+          </div>
+        </button>
+      ))
+    }
+  </div>
+
+  <div
+    data-feedback
+    class="hidden p-5 mb-8 border-[3px] border-black rounded-xl shadow-[6px_6px_0_#000] transform scale-95 opacity-0 transition-all duration-300 bg-white"
+  >
+    <div data-result class="mb-2 text-xl font-black tracking-tight"></div>
+    <p class="text-sm font-bold uppercase tracking-wider text-black/60 mb-2">
+      Erklärung
+    </p>
+    <p
+      class="text-base font-medium text-black leading-relaxed"
+      data-explanation
+    >
+    </p>
+  </div>
+
+  {
+    nextQuestionUrl && (
+      <div class="flex gap-3 mt-8">
+        <a
+          href={nextQuestionUrl}
+          class="inline-flex items-center justify-center gap-2 h-11 px-6 text-sm font-bold text-black border-[3px] border-black rounded-xl bg-[#96c7f2] shadow-[3px_3px_0_#000] hover:shadow-[6px_6px_0_#000] hover:-translate-x-[2px] hover:-translate-y-[2px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all duration-200"
+        >
+          Nächste Frage <i class="ri-arrow-right-line" />
+        </a>
+      </div>
+    )
+  }
+</quiz-question>
+
+<style>
+  .correct-answer {
+    background-color: #adf296 !important;
+    border-color: #000 !important;
+    transform: translate(2px, 2px) !important;
+    box-shadow: 2px 2px 0 #000 !important;
+  }
+  .wrong-answer {
+    background-color: #f29696 !important;
+    border-color: #000 !important;
+    transform: translate(2px, 2px) !important;
+    box-shadow: 2px 2px 0 #000 !important;
+    animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-2px, 2px, 0);
+    }
+    20%,
+    80% {
+      transform: translate3d(4px, 2px, 0);
+    }
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-6px, 2px, 0);
+    }
+    40%,
+    60% {
+      transform: translate3d(6px, 2px, 0);
+    }
+  }
+</style>
+
+<script>
+  class QuizQuestion extends HTMLElement {
+    connectedCallback() {
+      const buttons = Array.from(
+        this.querySelectorAll<HTMLButtonElement>('[data-choice-index]')
+      );
+      const feedback = this.querySelector<HTMLElement>('[data-feedback]');
+      const result = this.querySelector<HTMLElement>('[data-result]');
+      const expl = this.querySelector<HTMLElement>('[data-explanation]');
+      const explanation = this.dataset.explanation || '';
+      let answered = false;
+
+      const setSelected = (index: number) => {
+        if (answered) return; // Prevent multiple clicks
+        answered = true;
+
+        const selected = buttons[index];
+        if (!selected) return;
+        const correct = selected.dataset.isCorrect === '1';
+
+        buttons.forEach((btn, i) => {
+          const badge = btn.querySelector<HTMLElement>('.label-badge');
+          const mark = btn.querySelector<HTMLElement>('.status-icon');
+
+          btn.disabled = true; // disable after answer
+          btn.classList.remove(
+            'hover:-translate-y-1',
+            'hover:-translate-x-1',
+            'hover:shadow-[6px_6px_0_#000]'
+          );
+
+          if (i === index) {
+            btn.classList.add(correct ? 'correct-answer' : 'wrong-answer');
+            if (badge) badge.style.backgroundColor = '#fff';
+            if (mark) {
+              mark.classList.remove('hidden');
+              mark.textContent = correct ? '✓' : '✗';
+            }
+          } else if (btn.dataset.isCorrect === '1') {
+            // Highlight the correct answer if they got it wrong
+            btn.style.borderStyle = 'dashed';
+            btn.style.opacity = '0.7';
+          } else {
+            btn.style.opacity = '0.5';
+          }
+        });
+
+        if (result)
+          result.innerHTML = correct ? '🎉 Richtig!' : '💔 Leider falsch!';
+
+        if (feedback) {
+          feedback.style.backgroundColor = correct ? '#f0fde0' : '#fde0e0';
+          feedback.classList.remove('hidden', 'scale-95', 'opacity-0');
+          feedback.classList.add('scale-100', 'opacity-100');
+        }
+
+        if (expl) expl.textContent = explanation;
+      };
+
+      this.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const btn = target.closest<HTMLButtonElement>('[data-choice-index]');
+        if (btn) setSelected(Number(btn.dataset.choiceIndex));
+      });
+    }
+  }
+
+  customElements.define('quiz-question', QuizQuestion);
+</script>

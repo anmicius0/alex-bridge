@@ -1,53 +1,37 @@
 ---
 import { Image } from 'astro:assets';
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { type CollectionEntry } from 'astro:content';
 import squareImage from '../assets/alex/square.webp';
-import Card from '../components/content/Card.astro';
-import FeaturesGrid from '../components/home/FeaturesGrid.astro';
-import Hero from '../components/home/Hero.astro';
-import NewsBanner from '../components/layout/NewsBanner.astro';
 import Button from '../components/ui/Button.astro';
+import Card from '../components/ui/Card.astro';
 import SectionHeader from '../components/ui/SectionHeader.astro';
+import { getHolidayGroups } from '../features/holidays/services/holidays';
+import FeaturesGrid from '../features/home/components/FeaturesGrid.astro';
+import Hero from '../features/home/components/Hero.astro';
+import NewsBanner from '../features/news/components/NewsBanner.astro';
+import { getSortedNewsPosts } from '../features/news/services/news';
 import Layout from '../layouts/Layout.astro';
 import { logError } from '../lib/api/error-handler';
-import { getEntrySlug, getEntrySlugs } from '../services/content-slug';
 
 let newsPosts: CollectionEntry<'news'>[] = [];
-let holidays: CollectionEntry<'holiday'>[] = [];
+let upcomingHolidays: CollectionEntry<'holiday'>[] = [];
 
 try {
-  newsPosts = await getCollection('news');
-  holidays = await getCollection('holiday');
+  newsPosts = await getSortedNewsPosts();
+  const groups = await getHolidayGroups();
+  upcomingHolidays = groups.upcoming.slice(0, 1);
 } catch (error) {
   logError(error, { context: 'Homepage Collections Loading' });
 }
 
-const sortedNewsPosts = newsPosts.sort(
-  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-);
-const latestPost = sortedNewsPosts[0]; // You already have this!
-const recentPosts = sortedNewsPosts.slice(0, 2);
-
-const now = new Date().getTime();
-const activeHolidays = holidays.filter((holiday) => {
-  const startDate = new Date(holiday.data.startDate).getTime();
-  return startDate >= now;
-});
-
-const sortedHolidays = activeHolidays.sort(
-  (a, b) =>
-    new Date(a.data.startDate).getTime() - new Date(b.data.startDate).getTime()
-);
-const upcomingHolidays = sortedHolidays.slice(0, 1);
-
-const recentPostSlugMap = getEntrySlugs(recentPosts);
-const upcomingHolidaySlugMap = getEntrySlugs(upcomingHolidays, 'holiday');
+const latestPost = newsPosts[0];
+const recentPosts = newsPosts.slice(0, 2);
 ---
 
 <Layout title="Bridge mit Alexander">
   <NewsBanner
     title={latestPost?.data.title}
-    link={latestPost ? `/news/${getEntrySlug(latestPost, 'news')}` : undefined}
+    link={latestPost ? `/news/${latestPost.id}` : undefined}
   />
   <Hero />
 
@@ -181,23 +165,19 @@ const upcomingHolidaySlugMap = getEntrySlugs(upcomingHolidays, 'holiday');
             description="Entdecken Sie unsere nächsten Bridge-Reisen"
           />
           <div class="grid gap-6 md:grid-cols-1">
-            {upcomingHolidays.map((holiday) => {
-              const slug = upcomingHolidaySlugMap.get(holiday) ?? '';
-
-              return (
-                <Card
-                  title={holiday.data.title}
-                  image={holiday.data.image}
-                  href={`/holiday/${slug}`}
-                  dateRange={{
-                    start: holiday.data.startDate,
-                    end: holiday.data.endDate,
-                  }}
-                  imagePosition="top"
-                  showArrow={true}
-                />
-              );
-            })}
+            {upcomingHolidays.map((holiday) => (
+              <Card
+                title={holiday.data.title}
+                image={holiday.data.image}
+                href={`/holiday/${holiday.id}`}
+                dateRange={{
+                  start: holiday.data.startDate,
+                  end: holiday.data.endDate,
+                }}
+                imagePosition="top"
+                showArrow={true}
+              />
+            ))}
           </div>
           <div class="flex justify-center mt-8">
             <Button text="Alle Reisen" href="/holiday" />
@@ -216,23 +196,19 @@ const upcomingHolidaySlugMap = getEntrySlugs(upcomingHolidays, 'holiday');
             description="Aktuelle Bridge-Neuigkeiten und Tipps"
           />
           <div class="flex flex-col gap-6 md:flex-row">
-            {recentPosts.map((post, index) => {
-              const slug = recentPostSlugMap.get(post) ?? '';
-
-              return (
-                <div class={index === 0 ? 'md:w-2/3 flex' : 'md:w-1/3 flex'}>
-                  <Card
-                    title={post.data.title}
-                    href={`/news/${slug}`}
-                    date={post.data.date}
-                    images={post.data.photos}
-                    imagePosition="left"
-                    showArrow={true}
-                    class="w-full"
-                  />
-                </div>
-              );
-            })}
+            {recentPosts.map((post, index) => (
+              <div class={index === 0 ? 'md:w-2/3 flex' : 'md:w-1/3 flex'}>
+                <Card
+                  title={post.data.title}
+                  href={`/news/${post.id}`}
+                  date={post.data.date}
+                  images={post.data.photos}
+                  imagePosition="left"
+                  showArrow={true}
+                  class="w-full"
+                />
+              </div>
+            ))}
           </div>
           <div class="flex justify-center mt-8">
             <Button text="Alle Beiträge" href="/news" />

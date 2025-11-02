@@ -1,59 +1,50 @@
+// src/content.config.ts
 import { glob } from 'astro/loaders';
 import { defineCollection, z } from 'astro:content';
 
-const news = defineCollection({
-  loader: glob({
-    pattern: 'news/*.{md,mdx}',
-    base: './src/content',
+export const collections = {
+  news: defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/content/news' }),
+    schema: z.object({
+      title: z.string(),
+      description: z.string().optional(),
+      photos: z.array(z.string()).optional(),
+      image: z.string().optional(),
+      date: z.date(),
+    }),
   }),
-  schema: z.object({
-    title: z.string(),
-    date: z.date(),
-    photos: z.array(z.string()).optional(),
-    image: z.string().optional(),
+  file: defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/content/file' }),
+    schema: z.object({
+      title: z.string(),
+      description: z.string().optional(),
+      date: z.date(),
+      attachments: z.array(z.string()).optional(),
+    }),
   }),
-});
-
-const holiday = defineCollection({
-  loader: glob({
-    pattern: 'holiday/*.{md,mdx}',
-    base: './src/content',
+  holiday: defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/content/holiday' }),
+    schema: z.object({
+      title: z.string(),
+      description: z.string().optional(),
+      image: z.string().optional(),
+      startDate: z.date(),
+      endDate: z.date(),
+    }),
   }),
-  schema: z.object({
-    title: z.string(),
-    image: z.string().optional(),
-    startDate: z.date(),
-    endDate: z.date(),
+  quiz: defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/content/quiz' }),
+    schema: z.object({
+      title: z.string(),
+      description: z.string().optional(),
+      image: z.string().optional(),
+      choices: z.array(
+        z.object({
+          choiceText: z.string(),
+          isCorrect: z.boolean(),
+        })
+      ),
+      explanation: z.string(),
+    }),
   }),
-});
-
-const file = defineCollection({
-  loader: glob({
-    pattern: 'file/*.{md,mdx}',
-    base: './src/content',
-  }),
-  schema: z.object({
-    title: z.string(),
-    date: z.date(),
-    attachments: z.array(z.string()).optional(),
-  }),
-});
-
-const quiz = defineCollection({
-  loader: glob({
-    pattern: 'quiz/*.{md,mdx}',
-    base: './src/content',
-  }),
-  schema: z.object({
-    title: z.string(),
-    choices: z.array(
-      z.object({
-        choiceText: z.string(),
-        isCorrect: z.boolean(),
-      })
-    ),
-    explanation: z.string(),
-  }),
-});
-
-export const collections = { news, holiday, file, quiz };
+};

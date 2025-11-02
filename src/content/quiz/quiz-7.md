@@ -11,14 +11,15 @@ choices:
     isCorrect: false
 explanation: 15 FV, 3♠ vom Partner zeigt 11-12FV
 ---
+
 ### Die Reizung geht folgendermaßen:
 
 #### Reizung
 
-| Nord | Süd   |
-| ---- | ----- |
-| 1♦   | 1♥    |
-| 1♠   | 3♠|
-|4♠ |?|
+| Nord | Süd |
+| ---- | --- |
+| 1♦  | 1♥ |
+| 1♠  | 3♠ |
+| 4♠  | ?   |
 
 Wie viele Punkte (FV) muss Nord mindestens haben?

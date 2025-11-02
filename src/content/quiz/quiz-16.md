@@ -9,7 +9,8 @@ choices:
     isCorrect: false
   - choiceText: 1♦ - 1♠  - 3♠?
     isCorrect: false
-explanation: 1♦ - 1♠ - 3♣? ist die richtige Antwort. Ein billiger Zweifärbe im
+explanation:
+  1♦ - 1♠ - 3♣? ist die richtige Antwort. Ein billiger Zweifärbe im
   Sprung zeigt 19+FL
 ---
 

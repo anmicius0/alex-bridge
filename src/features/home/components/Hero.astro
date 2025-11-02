@@ -1,0 +1,92 @@
+---
+interface Props {
+  class?: string;
+}
+import { Image } from 'astro:assets';
+import grandmaImage from '../../../assets/grandma_playing_bridge_online.webp';
+import Button from '../../../components/ui/Button.astro';
+const { class: extraClass = '' } = Astro.props;
+---
+
+<section
+  class={`py-12 md:py-20 flex flex-col md:flex-row items-center gap-10 md:gap-14 px-4 max-w-6xl mx-auto ${extraClass}`}
+>
+  <div class="flex flex-col items-start justify-center gap-5 md:w-1/2">
+    <div
+      class="inline-flex items-center gap-2 px-3 py-1.5 font-bold tracking-wide uppercase border-[3px] border-black rounded-full shadow-[3px_3px_0_#000] bg-[#f2cf96] text-[10px] md:text-xs"
+    >
+      <span class="w-1.5 h-1.5 rounded-full bg-black animate-pulse"></span>
+      Bridge Lernen Online & Vor Ort
+    </div>
+
+    <h1
+      class="text-4xl font-black tracking-tight leading-[1.1] md:text-5xl lg:text-6xl"
+    >
+      Bridge spielen mit <span
+        class="text-transparent bg-clip-text bg-gradient-to-br from-[#f396e5] to-[#f2cf96] [-webkit-text-stroke:1.5px_black]"
+        >Leidenschaft.</span
+      >
+    </h1>
+
+    <p
+      class="text-base leading-relaxed text-gray-700 md:text-lg font-medium max-w-md"
+    >
+      Werden Sie Teil einer erstklassigen Bridge-Community in Lübeck. Von
+      Anfängerkursen bis zu fortgeschrittenen Strategien.
+    </p>
+
+    <div class="mt-2 flex flex-wrap gap-3">
+      <Button text="Mehr erfahren" href="#why" size="md" />
+      <Button
+        text="Online-Kurse"
+        href="/calendar/online"
+        variant="secondary"
+        size="md"
+      />
+    </div>
+  </div>
+
+  <div class="flex items-center justify-center p-4 md:w-1/2">
+    <div class="relative group w-full max-w-sm">
+      <div
+        class="floating-suit absolute -top-4 -left-4 text-3xl w-12 h-12 flex items-center justify-center z-20 rounded-xl border-[3px] border-black shadow-[4px_4px_0_#000] bg-[#f396e5]"
+      >
+        ♣
+      </div>
+      <div
+        class="floating-suit absolute -bottom-6 -right-2 text-3xl w-12 h-12 flex items-center justify-center z-20 rounded-full border-[3px] border-black shadow-[4px_4px_0_#000] bg-[#96c7f2]"
+        style="animation-delay: 1.5s;"
+      >
+        ♥
+      </div>
+
+      <div
+        class="relative border-[3px] border-black rounded-2xl aspect-square shadow-[10px_10px_0_#000] overflow-hidden bg-[#f2cf96]"
+      >
+        <Image
+          src={grandmaImage}
+          alt="Bridge"
+          class="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+          width={600}
+          height={600}
+          loading="eager"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .floating-suit {
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+</style>

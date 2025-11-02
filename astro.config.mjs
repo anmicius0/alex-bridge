@@ -8,5 +8,7 @@ export default defineConfig({
   output: 'static',
   adapter: vercel({}),
   integrations: [react(), sitemap()],
-  vite: { plugins: [tailwindcss()] },
+  vite: {
+    plugins: [tailwindcss()],
+  },
 });
