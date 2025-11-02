@@ -1,13 +1,15 @@
 ---
-title: 'Quiz 11'
+title: Quiz 11
 choices:
-  - choiceText: 'PASSE'
+  - choiceText: PASSE
     isCorrect: true
-  - choiceText: '3♥'
+  - choiceText: 3♠
     isCorrect: false
-  - choiceText: '3SA'
+  - choiceText: 3SA
     isCorrect: false
-explanation: 'PASSE ist korrekt, erst ab 16FL darf man eine neue Farbe reizen'
+  - choiceText: 4♣
+    isCorrect: false
+explanation: PASSE ist korrekt, erst ab 16FL darf man eine neue Farbe reizen
 ---
 
 ### Ihr Partner eröffnet mit 3♥. Was reizen Sie mit folgender Hand:
