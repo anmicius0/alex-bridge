@@ -1,15 +1,15 @@
 ---
-title: 'Quiz 2'
+title: Quiz 2
 choices:
-  - choiceText: 'PASSE'
+  - choiceText: PASSE
     isCorrect: true
-  - choiceText: '2♥'
+  - choiceText: 2♥
     isCorrect: false
-  - choiceText: '2♣'
+  - choiceText: 2♠
     isCorrect: false
-  - choiceText: '2SA'
+  - choiceText: 2SA
     isCorrect: false
-explanation: 'PASSE, Partner hat keine 4er Oberfarbe und ist schwach!'
+explanation: PASSE, Partner hat keine 4er Oberfarbe und ist schwach!
 ---
 
 ### Sie eröffnen 1♣ und Ihr Partner hebt Sie auf 2♣ (6-10FV). Was reizen Sie mit folgender Hand?
