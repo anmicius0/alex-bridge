@@ -1,24 +1,24 @@
 ---
-title: 'Quiz 7'
+title: Quiz 7
 choices:
-  - choiceText: '13FV'
+  - choiceText: 13FV
     isCorrect: false
-  - choiceText: '15 FV'
+  - choiceText: 15 FV
     isCorrect: true
-  - choiceText: '17 FV'
+  - choiceText: 17 FV
     isCorrect: false
-  - choiceText: '20 FV'
+  - choiceText: 20 FV
     isCorrect: false
-explanation: '15 FV, 3♠ vom Partner zeigt 11-12FV'
+explanation: 15 FV, 3♠ vom Partner zeigt 11-12FV
 ---
-
 ### Die Reizung geht folgendermaßen:
 
 #### Reizung
 
-| Nord | Süd |
-| :--: | :-: |
-| 1♦  | 1♥ |
-| 1♠  |     |
+| Nord | Süd   |
+| ---- | ----- |
+| 1♦   | 1♥    |
+| 1♠   | 3♠|
+|4♠ |?|
 
 Wie viele Punkte (FV) muss Nord mindestens haben?
