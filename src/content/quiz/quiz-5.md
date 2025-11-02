@@ -1,17 +1,14 @@
 ---
-title: 'Quiz 5'
+title: Quiz 5
 choices:
-  - choiceText: 'SPRINTER'
+  - choiceText: SPRINTER
     isCorrect: false
-  - choiceText: 'SPLINTER'
+  - choiceText: SPLINTER
     isCorrect: true
-  - choiceText: 'SPRINGER'
+  - choiceText: SPRINGER
     isCorrect: false
-  - choiceText: 'SPINNER'
+  - choiceText: SPINNER
     isCorrect: false
-explanation: 'SPLINTER ist die korrekte Schreibweise.'
+explanation: SPLINTER ist die korrekte Antwort.
 ---
-
 ### Welche Konvention gibt es tatsächlich?
-
-(Multiple choice question about bridge conventions)
