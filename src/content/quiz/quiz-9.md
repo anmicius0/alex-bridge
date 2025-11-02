@@ -1,15 +1,16 @@
 ---
-title: 'Quiz 9'
+title: Quiz 9
 choices:
-  - choiceText: '1SA'
+  - choiceText: 1SA
     isCorrect: false
-  - choiceText: '2♦'
+  - choiceText: 2♦
     isCorrect: true
-  - choiceText: '3♠'
+  - choiceText: 3♠
     isCorrect: false
-  - choiceText: '4♠'
+  - choiceText: 4♠
     isCorrect: false
-explanation: '2♦ ist die beste Antwort, da sie stark ist (verspätete Hebung).'
+explanation: 2♦ ist die beste Antwort. Sie sind zu stark, um sofort 4♠ zu
+  reizen. Stichwort verspätete Hebung / Umwegreizung.
 ---
 
 ### Ihr Partner eröffnet mit 1♠. Was reizen Sie mit folgender Hand?
