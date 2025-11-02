@@ -1,15 +1,14 @@
 ---
-title: 'Quiz 8'
+title: Quiz 8
 choices:
-  - choiceText: 'Whist'
+  - choiceText: Whist
     isCorrect: true
-  - choiceText: 'Whistle'
+  - choiceText: Whistle
     isCorrect: false
-  - choiceText: 'Whiskey'
+  - choiceText: Whiskey
     isCorrect: false
-  - choiceText: 'Waste'
+  - choiceText: Waste
     isCorrect: false
-explanation: 'Whist ist das korrekte Spiel, von dem Bridge abgeleitet ist.'
+explanation: Whist ist das korrekte Spiel, von dem Bridge abgeleitet ist.
 ---
-
-### Aus welchem Spiel kommt Bridge
+### Aus welchem Spiel kommt Bridge?
