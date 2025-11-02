@@ -9,7 +9,9 @@ choices:
     isCorrect: false
   - choiceText: 2SA
     isCorrect: false
-explanation: 2♦ zeigt mind. 4er Karo und 11+ FL, 2♥ würde 5er zeigen und zu schwach sein.
+explanation: "2♦ zeigt mind. 4er Karo und 11+ FL, 2♥ würde 5er zeigen und zu
+  schwach sein. 2SA reizt man nicht mit einer 4er Coeur, da die Gefahr besteht,
+  dass der Coeurfit verloren geht. "
 ---
 ### Ihr Partner eröffnet mit 1♣. Was reizen Sie mit folgender Hand?
 
