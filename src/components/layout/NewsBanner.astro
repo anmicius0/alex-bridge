@@ -1,0 +1,61 @@
+---
+/**
+ * NewsBanner
+ * Generic banner component that displays a title and links to a specified URL.
+ */
+interface Props {
+  title?: string;
+  link?: string;
+  class?: string;
+}
+
+const { title, link, class: extraClass = '' } = Astro.props;
+---
+
+{
+  title && link && (
+    <div class={`max-w-4xl mx-auto mb-4 px-4 ${extraClass}`}>
+      <a href={link} class="block group banner-card">
+        {/* Content in single row */}
+        <div class="flex items-center gap-2">
+          <div class="news-badge">Neu</div>
+          <p class="text-sm font-bold text-black truncate transition-colors group-hover:text-brutalBlue">
+            {title}
+          </p>
+        </div>
+      </a>
+    </div>
+  )
+}
+
+<style>
+  .banner-card {
+    display: block;
+    padding: 0.75rem 1rem;
+    border: 3px solid var(--border);
+    border-radius: 0.5rem;
+    background: white;
+    box-shadow: 3px 3px 0 var(--border);
+    transition:
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .banner-card:hover {
+    box-shadow: 6px 6px 0 var(--border);
+    transform: translate(-1px, -1px);
+  }
+
+  .news-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.5rem;
+    background-color: var(--blue);
+    border: 2px solid var(--border);
+    border-radius: 0.375rem;
+    font-weight: 700;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+</style>

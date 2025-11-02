@@ -1,0 +1,142 @@
+---
+const {
+  choices = [],
+  explanation = '',
+  nextQuestionUrl,
+} = Astro.props as {
+  choices: { choiceText: string; isCorrect: boolean }[];
+  explanation: string;
+  nextQuestionUrl?: string;
+};
+const LABELS = Array.from({ length: choices.length }, (_, i) =>
+  String.fromCharCode(65 + i)
+);
+const id = `quiz-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div id={id} data-quiz-root data-explanation={explanation} class="mb-8">
+  <!-- Answer Options -->
+  <div class="mb-8 space-y-3">
+    {
+      choices.map((choice, index) => (
+        <button
+          data-choice-index={String(index)}
+          data-is-correct={choice.isCorrect ? '1' : '0'}
+          class="w-full p-4 text-left transition-all border-2 border-gray-300 cursor-pointer card hover:border-black"
+        >
+          <div class="flex items-start gap-3">
+            <span class="flex items-center justify-center flex-shrink-0 w-8 h-8 font-bold text-gray-700 bg-gray-300">
+              {LABELS[index]}
+            </span>
+            <div class="flex-1">
+              <p class="font-semibold">{LABELS[index]}</p>
+              <p class="text-sm text-gray-700">{choice.choiceText}</p>
+            </div>
+            <span class="flex-shrink-0 hidden text-2xl" aria-hidden="true" />
+          </div>
+        </button>
+      ))
+    }
+  </div>
+
+  <!-- Feedback & Explanation -->
+  <div
+    data-feedback
+    class="hidden p-4 mb-8 border-l-4 card"
+    style="border-color:#96c7f2;background-color:#e8f4fd;"
+  >
+    <div data-result class="mb-3"></div>
+    <h3 class="mb-2 font-semibold" style="color:#1e3a8a;">Erklärung:</h3>
+    <p class="text-sm" style="color:#1e3a8a;" data-explanation></p>
+  </div>
+
+  <!-- Next Question Button (conditionally rendered) -->
+  {
+    nextQuestionUrl && (
+      <div class="flex gap-3 mt-8">
+        <a
+          href={nextQuestionUrl}
+          class="inline-flex items-center justify-center gap-2 h-12 px-6 font-semibold text-black border-3 border-black rounded-md bg-brutalBlue transition-all duration-200 shadow-[4px_4px_0_#000] hover:shadow-[10px_10px_0_#000] hover:-translate-x-[1px] hover:-translate-y-[1px]"
+        >
+          Nächste Frage →
+        </a>
+      </div>
+    )
+  }
+</div>
+
+<script is:inline>
+  (function () {
+    const ready = (fn) =>
+      document.readyState === 'loading'
+        ? document.addEventListener('DOMContentLoaded', fn)
+        : fn();
+
+    ready(() => {
+      document.querySelectorAll('[data-quiz-root]').forEach(async (root) => {
+        const buttons = Array.from(
+          root.querySelectorAll('[data-choice-index]')
+        );
+        const feedback = root.querySelector('[data-feedback]');
+        const result = root.querySelector('[data-result]');
+        const expl = root.querySelector('[data-explanation]');
+        const explanation = root.dataset.explanation || '';
+
+        const setSelected = (index) => {
+          const selected = buttons[index];
+          const correct = selected.dataset.isCorrect === '1';
+
+          buttons.forEach((btn, i) => {
+            const badge = btn.querySelector('span');
+            const mark = btn.querySelector('.text-2xl');
+            if (i === index) {
+              btn.style.borderColor = correct ? '#adf296' : '#f29696';
+              btn.style.backgroundColor = correct ? '#f0fde0' : '#fde0e0';
+              if (badge) {
+                badge.style.backgroundColor = correct ? '#adf296' : '#f29696';
+                badge.classList.remove('bg-gray-300', 'text-gray-700');
+                badge.classList.add('text-black');
+              }
+              if (mark) {
+                mark.classList.remove('hidden');
+                mark.textContent = correct ? '✓' : '✗';
+              }
+            } else {
+              btn.style.borderColor = '';
+              btn.style.backgroundColor = '';
+              if (badge) {
+                badge.style.backgroundColor = '';
+                badge.classList.add('bg-gray-300', 'text-gray-700');
+                badge.classList.remove('text-black');
+              }
+              if (mark) {
+                mark.classList.add('hidden');
+                mark.textContent = '';
+              }
+            }
+          });
+
+          if (result)
+            result.innerHTML = `<p class="font-semibold" style="color:${
+              correct ? '#166534' : '#a82f2f'
+            }">${correct ? '✓ Korrekt!' : '✗ Leider falsch!'}</p>`;
+
+          if (feedback) {
+            feedback.style.borderColor = correct ? '#adf296' : '#f29696';
+            feedback.style.backgroundColor = correct ? '#f0fde0' : '#fde0e0';
+            feedback.classList.remove('hidden');
+          }
+
+          if (expl) expl.textContent = explanation;
+        };
+
+        // Delegate clicks to buttons
+        root.addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-choice-index]');
+          if (btn && buttons.includes(btn))
+            setSelected(Number(btn.dataset.choiceIndex));
+        });
+      });
+    });
+  })();
+</script>

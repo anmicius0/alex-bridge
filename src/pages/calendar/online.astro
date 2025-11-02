@@ -1,0 +1,63 @@
+---
+// Server-only frontmatter
+import ical from 'node-ical';
+import type { CalendarEvent } from '../../components/Calendar';
+import CalendarLayout from '../../layouts/CalendarLayout.astro';
+import { logError, safeExecute } from '../../lib/api/error-handler';
+
+const ICS_URL =
+  'https://calendar.google.com/calendar/ical/b7ba0af741653fd2b3b03a3d9f12b50c9ca0068deae2b8fa197ed24153dd1b9a%40group.calendar.google.com/private-0935864adb090d476b7d8ddafe76c363/basic.ics';
+
+async function fetchEvents(): Promise<CalendarEvent[]> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const response = await fetch(ICS_URL, { signal: controller.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const data = ical.parseICS(await response.text());
+    return (
+      Object.values(data)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .filter((e): e is any => (e as any)?.type === 'VEVENT')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((ev: any) => ({
+          id: String(ev.uid ?? ''),
+          title: String(ev.summary ?? ''),
+          start: ev.start?.toISOString?.(),
+          end: ev.end?.toISOString?.(),
+          allDay: false,
+          extendedProps: { description: ev.description, location: ev.location },
+        }))
+        .filter((e) => e.start && e.title)
+    );
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+const result = await safeExecute(fetchEvents, {
+  logLevel: 'error',
+  context: 'calendar:ics',
+});
+const events: CalendarEvent[] = result.success
+  ? (result.data as CalendarEvent[])
+  : [];
+
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, s-maxage=600, stale-while-revalidate=86400'
+);
+
+if (!events.length) {
+  logError('No events fetched', { logLevel: 'warn', context: 'calendar:ics' });
+}
+
+// Define props for the layout
+const title = 'Online-Kurse';
+const description =
+  'Durchsuchen Sie den Zeitplan für bevorstehende Bridge-Kurse. Alle Sitzungen finden live statt und sind interaktiv.';
+---
+
+<CalendarLayout title={title} description={description} events={events} />

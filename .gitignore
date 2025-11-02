@@ -1,0 +1,47 @@
+# -------------------------
+# Build Output & Cache
+# -------------------------
+dist/
+.astro/
+.cache/
+public/files/ # Decap CMS uploaded files (if configured for local git storage)
+
+# -------------------------
+# Dependencies & Package Management
+# -------------------------
+node_modules/
+bun.lockb
+*.log
+
+# -------------------------
+# Environment & Secrets
+# -------------------------
+.env
+.env.development
+.env.production
+.env.local
+.env.*
+
+# -------------------------
+# Tooling & Editor Settings
+# -------------------------
+# IDEs
+.DS_Store
+.idea/
+.vscode/
+
+# Vercel
+.vercel/
+
+# -------------------------
+# Compiled Assets (must be ignored)
+# -------------------------
+# SASS/CSS output - files created by "sass --watch src/styles:src/styles"
+src/styles/*.css
+
+# -------------------------
+# Repomix (Cleanup from template)
+# -------------------------
+repomix-output.md
+.repomixignore
+repomix.config.json
