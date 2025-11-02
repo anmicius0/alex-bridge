@@ -11,4 +11,5 @@ choices:
     isCorrect: false
 explanation: Whist ist das korrekte Spiel, von dem Bridge abgeleitet ist.
 ---
+
 ### Aus welchem Spiel kommt Bridge?

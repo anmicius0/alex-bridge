@@ -8,5 +8,10 @@ export default defineConfig({
   output: 'static',
   adapter: vercel({}),
   integrations: [react(), sitemap()],
-  vite: { plugins: [tailwindcss()] },
+  vite: {
+    plugins: [tailwindcss()],
+    server: {
+      allowedHosts: ['9d82172505c7.ngrok-free.app'],
+    },
+  },
 });

@@ -1,12 +1,8 @@
 import type { EventContentArg } from '@fullcalendar/core';
 import deLocale from '@fullcalendar/core/locales/de';
 import listPlugin from '@fullcalendar/list';
-// FullCalendar ships React typings; this project uses Preact via Astro's renderer which
-// can cause an incompatible JSX type error. Narrowing to `any` for the imported
-// component avoids a broad refactor while keeping type-safety for our props below.
 import FullCalendar from '@fullcalendar/react';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const FullCalendarAny: any = FullCalendar;
+import { useEffect, useState } from 'react';
 
 export interface CalendarEvent {
   id: string;
@@ -24,56 +20,116 @@ export interface CalendarProps {
   events: CalendarEvent[];
 }
 
-export default function Calendar({ events }: CalendarProps) {
-  const parseDescription = (html: string) => {
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const elements: any[] = [];
-    let index = 0;
+export default function Calendar({ events: initialEvents }: CalendarProps) {
+  const [events, setEvents] = useState<CalendarEvent[]>(initialEvents);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    Array.from(div.childNodes).forEach((node) => {
-      if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
-        elements.push(node.textContent);
-      } else if (
-        node.nodeType === Node.ELEMENT_NODE &&
-        (node as Element).tagName === 'A'
-      ) {
-        const href = (node as Element).getAttribute('href') || '';
-        elements.push(
-          <a
-            key={`link-${index++}`}
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:underline"
-          >
-            {(node as Element).textContent || href}
-          </a>
-        );
+  useEffect(() => {
+    const fetchCalendarEvents = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/calendar', {
+          method: 'GET',
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch calendar: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setEvents(data.events || []);
+        setError(null);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Unknown error occurred';
+        setError(errorMessage);
+        console.error('Calendar fetch error:', err);
+        // Keep existing events if fetch fails
+        setEvents(initialEvents);
+      } finally {
+        setLoading(false);
       }
-    });
+    };
 
-    return elements;
+    fetchCalendarEvents();
+
+    // Optional: Refetch every 5 minutes
+    const interval = setInterval(fetchCalendarEvents, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [initialEvents]);
+
+  const parseDescription = (html: string) => {
+    if (!html) return '';
+    // Remove HTML tags
+    return html.replace(/<[^>]*>/g, '').trim();
   };
 
-  return (
-    <div className="p-4 bg-white border-black rounded-2xl shadow-brutalSm border-3">
-      <FullCalendarAny
-        locale={deLocale}
-        initialView="listMonth"
-        plugins={[listPlugin]}
-        headerToolbar={{ left: '', center: 'title', right: 'prev,next' }}
-        events={events}
-        eventContent={(arg: EventContentArg) => (
-          <div className="flex flex-col">
-            <div className="font-bold">{arg.event.title}</div>
-            <div className="text-sm text-gray-600">{arg.timeText}</div>
-            <div className="mt-1 text-sm">
-              {parseDescription(arg.event.extendedProps?.description || '')}
-            </div>
+  const eventContent = (info: EventContentArg) => {
+    return (
+      <div className="fc-event-content">
+        <div className="fc-event-title">{info.event.title}</div>
+        {info.event.extendedProps?.description && (
+          <div className="fc-event-description text-xs mt-1">
+            {parseDescription(info.event.extendedProps.description).substring(
+              0,
+              50
+            )}
+            ...
           </div>
         )}
+      </div>
+    );
+  };
+
+  if (error) {
+    return (
+      <div className="p-4 mb-4 border-3 border-red-500 rounded-md bg-red-100">
+        <p className="font-semibold text-red-700">
+          Fehler beim Laden des Kalenders
+        </p>
+        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-xs text-red-500 mt-2">
+          Bitte versuchen Sie die Seite zu aktualisieren.
+        </p>
+      </div>
+    );
+  }
+
+  if (loading && events.length === 0) {
+    return (
+      <div className="p-8 text-center border-3 border-gray-300 rounded-md bg-gray-50">
+        <p className="text-gray-600 font-medium">Kalender wird geladen...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="calendar-wrapper">
+      {loading && (
+        <div className="mb-4 p-2 bg-yellow-50 border-2 border-yellow-300 rounded-md text-sm text-yellow-700">
+          Kalender wird aktualisiert...
+        </div>
+      )}
+      <FullCalendar
+        plugins={[listPlugin]}
+        initialView="listMonth"
+        locale={deLocale}
+        events={events}
+        eventContent={eventContent}
+        height="auto"
+        headerToolbar={{
+          left: 'prev,next today',
+          center: 'title',
+          right: 'listMonth,listWeek',
+        }}
+        buttonText={{
+          today: 'Heute',
+          month: 'Monat',
+          week: 'Woche',
+        }}
       />
     </div>
   );
