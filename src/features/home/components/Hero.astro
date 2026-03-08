@@ -1,0 +1,51 @@
+---
+import { Image } from 'astro:assets';
+import grandmaImage from '../../../assets/grandma_playing_bridge_online.webp';
+
+interface Props {
+  class?: string;
+}
+const { class: extraClass = '' } = Astro.props;
+---
+
+<section
+  class={`py-12 flex flex-col md:flex-row items-center gap-12 md:gap-20 px-4 max-w-5xl mx-auto ${extraClass}`}
+>
+  <div class="flex flex-col items-start justify-center md:w-1/2">
+    <h1 class="mb-6 text-slate-900 leading-tight">
+      Bridge lernen & <br />
+      <span class="text-accent italic underline decoration-secondary/40"
+        >gemeinsam erleben.</span
+      >
+    </h1>
+
+    <p
+      class="text-lg leading-relaxed text-slate-600 md:text-xl font-medium max-w-lg mb-8"
+    >
+      Entdecke das spannendste Kartenspiel der Welt. Bei uns lernst du Bridge
+      von Grund auf – mit viel Spaß, in deinem Tempo und ganz ohne Druck.
+    </p>
+  </div>
+
+  <div class="flex items-center justify-center p-4 md:w-1/2 relative">
+    <div
+      class="absolute -top-6 -left-6 w-32 h-32 bg-secondary rounded-full -z-10 opacity-30"
+    >
+    </div>
+    <div
+      class="absolute -bottom-6 -right-6 w-40 h-40 bg-info rounded-full -z-10 opacity-30"
+    >
+    </div>
+
+    <div class="relative">
+      <Image
+        src={grandmaImage}
+        alt="Bridge lernen mit Alexander"
+        class="rounded-2xl shadow-lg border-4 border-white rotate-2 hover:rotate-0 transition-transform duration-500 relative z-10 bg-white"
+        width={600}
+        height={600}
+        loading="eager"
+      />
+    </div>
+  </div>
+</section>

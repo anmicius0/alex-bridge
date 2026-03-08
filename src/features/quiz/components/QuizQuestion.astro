@@ -1,0 +1,212 @@
+---
+const { choices = [], explanation = '', nextQuestionUrl } = Astro.props;
+const LABELS = Array.from({ length: choices.length }, (_, i) =>
+  String.fromCharCode(65 + i)
+);
+---
+
+<quiz-question data-explanation={explanation} class="block mb-8">
+  <div class="mb-8 space-y-4">
+    {
+      choices.map((choice, index) => (
+        <button
+          data-choice-index={String(index)}
+          data-is-correct={choice.isCorrect ? '1' : '0'}
+          class="w-full p-5 text-left bg-white border-2 border-gray-100 rounded-2xl shadow-sm transition-all duration-300 flex items-center gap-4 hover:border-secondary hover:bg-secondary/5 disabled:cursor-default"
+        >
+          <span class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 text-slate-900 text-sm font-black shrink-0 label-badge transition-colors border border-gray-200">
+            {LABELS[index]}
+          </span>
+          <div class="flex-1">
+            <p class="text-base font-bold text-slate-800 leading-snug choice-text">
+              {choice.choiceText}
+            </p>
+          </div>
+          {/* Success/Error Icon Placeholder */}
+          <div class="status-indicator hidden">
+            <span class="material-symbols-outlined font-black" />
+          </div>
+        </button>
+      ))
+    }
+  </div>
+
+  <div
+    data-feedback
+    class="hidden p-8 mb-8 border-2 rounded-3xl shadow-xl transform scale-95 opacity-0 transition-all duration-500 bg-white"
+  >
+    <div
+      data-result
+      class="mb-4 text-2xl font-black tracking-tight text-slate-900"
+    >
+    </div>
+    <div class="h-1 w-12 bg-secondary mb-6 rounded-full"></div>
+    <p
+      class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2"
+    >
+      Analyse
+    </p>
+    <p
+      class="text-lg font-medium text-slate-700 leading-relaxed"
+      data-explanation
+    >
+    </p>
+  </div>
+
+  {
+    nextQuestionUrl && (
+      <div class="flex justify-end mt-8">
+        <a
+          href={nextQuestionUrl}
+          class="inline-flex items-center justify-center h-14 px-10 text-base font-black text-slate-900 rounded-2xl bg-secondary shadow-[0_4px_0_0_#d1af00] hover:shadow-none hover:translate-y-1 transition-all duration-200 uppercase tracking-widest"
+        >
+          Nächste Frage
+        </a>
+      </div>
+    )
+  }
+</quiz-question>
+
+<style>
+  /* The Real "Correct" Answer - Always shown high contrast */
+  .reveal-correct {
+    border-color: var(--color-highlight) !important;
+    background-color: white !important;
+    box-shadow:
+      0 0 0 4px rgba(0, 158, 244, 0.1),
+      var(--shadow-lg) !important;
+    transform: scale(1.02);
+    z-index: 10;
+  }
+  .reveal-correct .label-badge {
+    background-color: var(--color-highlight) !important;
+    color: white !important;
+    border-color: var(--color-highlight) !important;
+  }
+  .reveal-correct .choice-text {
+    color: var(--color-highlight) !important;
+  }
+  .reveal-correct .status-indicator {
+    display: flex !important;
+    color: var(--color-highlight);
+  }
+  .reveal-correct .status-indicator span::before {
+    content: 'check_circle';
+  }
+
+  /* The selected Wrong Answer */
+  .reveal-wrong {
+    border-color: var(--color-accent) !important;
+    background-color: var(--color-accent) / 5 !important;
+    animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+  .reveal-wrong .label-badge {
+    background-color: var(--color-accent) !important;
+    color: white !important;
+    border-color: var(--color-accent) !important;
+  }
+  .reveal-wrong .status-indicator {
+    display: flex !important;
+    color: var(--color-accent);
+  }
+  .reveal-wrong .status-indicator span::before {
+    content: 'cancel';
+  }
+
+  /* Other answers that weren't the right one and weren't picked */
+  .fade-out {
+    opacity: 0.3;
+    filter: grayscale(1);
+    transform: scale(0.98);
+  }
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
+</style>
+
+<script>
+  class QuizQuestion extends HTMLElement {
+    connectedCallback() {
+      const buttons = Array.from(
+        this.querySelectorAll<HTMLButtonElement>('[data-choice-index]')
+      );
+      const feedback = this.querySelector<HTMLElement>('[data-feedback]');
+      const resultMsg = this.querySelector<HTMLElement>('[data-result]');
+      const expl = this.querySelector<HTMLElement>('[data-explanation]');
+      const explanation = this.dataset.explanation || '';
+      let answered = false;
+
+      const handleSelection = (selectedIndex: number) => {
+        if (answered) return;
+        answered = true;
+
+        const selectedBtn = buttons[selectedIndex];
+        if (!selectedBtn) return;
+
+        const isCorrectSelection = selectedBtn.dataset.isCorrect === '1';
+
+        buttons.forEach((btn, i) => {
+          btn.disabled = true;
+          const isThisBtnCorrect = btn.dataset.isCorrect === '1';
+
+          if (isThisBtnCorrect) {
+            // Highlight the correct answer no matter what
+            btn.classList.add('reveal-correct');
+          } else if (i === selectedIndex && !isCorrectSelection) {
+            // If user picked this and it's wrong, show error state
+            btn.classList.add('reveal-wrong');
+          } else {
+            // Everything else fades out
+            btn.classList.add('fade-out');
+          }
+        });
+
+        if (resultMsg) {
+          resultMsg.textContent = isCorrectSelection
+            ? 'Hervorragend!'
+            : 'Knapp daneben!';
+          resultMsg.classList.toggle('text-highlight', isCorrectSelection);
+          resultMsg.classList.toggle('text-accent', !isCorrectSelection);
+        }
+
+        if (feedback) {
+          feedback.classList.remove('hidden');
+          feedback.style.borderColor = isCorrectSelection
+            ? 'var(--color-highlight)'
+            : 'var(--color-accent)';
+          // Small delay for the animation to feel smoother
+          setTimeout(() => {
+            feedback.classList.add('scale-100', 'opacity-100');
+          }, 10);
+        }
+
+        if (expl) expl.textContent = explanation;
+      };
+
+      this.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
+          '[data-choice-index]'
+        );
+        if (btn) handleSelection(Number(btn.dataset.choiceIndex));
+      });
+    }
+  }
+  customElements.define('quiz-question', QuizQuestion);
+</script>

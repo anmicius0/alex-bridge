@@ -1,0 +1,37 @@
+---
+import DateDisplay from './DateDisplay.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  data:
+    | CollectionEntry<'blog'>['data']
+    | CollectionEntry<'holiday'>['data']
+    | CollectionEntry<'quiz'>['data'];
+  class?: string;
+}
+
+const { data, class: extraClass = '' } = Astro.props;
+
+const hasDate = 'date' in data && data.date;
+const hasRange = 'startDate' in data && data.startDate && 'endDate' in data && data.endDate;
+---
+
+{
+  hasRange ? (
+    <div class:list={[
+      "inline-flex items-center gap-2 px-3 py-1 bg-secondary/20 text-slate-900 rounded-full text-xs font-black uppercase tracking-widest border border-secondary/30",
+      extraClass
+    ]}>
+      <span class="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+      <DateDisplay date={data.startDate as Date} /> —{' '}
+      <DateDisplay date={data.endDate as Date} />
+    </div>
+  ) : hasDate ? (
+    <div class:list={[
+      "inline-flex items-center gap-2 px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-black uppercase tracking-widest border border-accent/20",
+      extraClass
+    ]}>
+      <DateDisplay date={data.date as Date} />
+    </div>
+  ) : null
+}

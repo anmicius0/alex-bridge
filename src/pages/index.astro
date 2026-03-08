@@ -1,0 +1,213 @@
+---
+import squareImage from '@assets/alex/square.webp';
+import Button from '@components/ui/Button.astro';
+import Card from '@components/ui/Card.astro';
+import PageHeader from '@components/layout/PageHeader.astro';
+import { getSortedBlogPosts } from '@features/blog/services/blog';
+import { getHolidayGroups } from '@features/holiday/services/holiday';
+import Hero from '@features/home/components/Hero.astro';
+import Layout from '@layouts/Layout.astro';
+import { logError } from '@lib/error-handler';
+import { Image } from 'astro:assets';
+import { type CollectionEntry } from 'astro:content';
+
+let blogPosts: CollectionEntry<'blog'>[] = [];
+let upcomingHolidays: CollectionEntry<'holiday'>[] = [];
+
+try {
+  blogPosts = await getSortedBlogPosts();
+  const groups = await getHolidayGroups();
+  upcomingHolidays = groups.upcoming.slice(0, 1);
+} catch (error) {
+  logError(error, { context: 'Homepage Collections Loading' });
+}
+
+const recentPosts = blogPosts.slice(0, 1);
+---
+
+<Layout title="Bridge mit Alexander">
+  <Hero />
+
+  <section id="why">
+    <div class="container-b">
+      <PageHeader
+        title="Der perfekte Start in dein neues Hobby"
+        description="Warum Bridge? Es ist Gehirnjogging, Nervenkitzel und tolle Gesellschaft in einem."
+      />
+      <div class="grid gap-8 md:grid-cols-3 mt-12">
+        <Card title="Keine Vorkenntnisse nötig">
+          <div slot="icon" class="mb-4 text-accent">
+            <span class="material-symbols-outlined text-4xl">stroller</span>
+          </div>
+          <p class="text-slate-600">
+            Du hast noch nie Bridge gespielt? Kein Problem! Wir erklären dir die Regeln Schritt für Schritt, bis alles sitzt.
+          </p>
+        </Card>
+
+        <Card title="Gemeinsam statt einsam">
+          <div slot="icon" class="mb-4 text-accent">
+            <span class="material-symbols-outlined text-4xl">celebration</span>
+          </div>
+          <p class="text-slate-600">
+            Bridge ist ein Partnerspiel. In unseren Kursen lernst du nette Leute kennen und schließt neue Freundschaften.
+          </p>
+        </Card>
+
+        <Card title="Spielend leicht lernen">
+          <div slot="icon" class="mb-4 text-accent">
+            <span class="material-symbols-outlined text-4xl">rocket_launch</span>
+          </div>
+          <p class="text-slate-600">
+            Vergiss trockene Theorie. Bei uns wird von der ersten Stunde an Karten gespielt – denn so lernt es sich am besten.
+          </p>
+        </Card>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="bg-white/50 py-24">
+    <div class="container-b">
+      <div
+        class="p-8 md:p-16 bg-white border border-gray-200 rounded-4xl shadow-sm overflow-hidden"
+      >
+        <div class="flex flex-col items-center gap-12 lg:flex-row">
+          <div class="shrink-0 relative">
+            <div
+              class="absolute inset-0 bg-secondary rounded-full blur-2xl opacity-20 -z-10"
+            >
+            </div>
+            <Image
+              src={squareImage}
+              alt="Alexander"
+              class="object-cover w-56 h-56 border-8 border-primary rounded-full shadow-lg lg:w-72 lg:h-72"
+            />
+          </div>
+          <div class="flex-1 text-center lg:text-left space-y-6">
+            <h2 class="text-4xl md:text-5xl font-black text-slate-900">
+              Alexander Smirnov
+            </h2>
+            <p class="text-xl font-bold text-accent italic">
+              Dein Begleiter vom ersten Stich bis zum ersten Turnier
+            </p>
+            <p class="text-lg text-slate-600 leading-relaxed max-w-2xl">
+              Bridge ist meine Leidenschaft. Seit über 30 Jahren zeige ich Menschen, wie faszinierend dieses Spiel ist. 
+              Mein Ziel ist es, die komplexen Regeln so einfach zu erklären, dass du sofort Lust bekommst, die Karten in die Hand zu nehmen.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-20 grid gap-8 md:grid-cols-2">
+        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+          <div class="flex items-center gap-4 mb-6">
+            <span class="material-symbols-outlined text-3xl text-info"
+              >cast_for_education</span
+            >
+            <h3 class="text-2xl font-bold">Lehrer</h3>
+          </div>
+          <ul class="space-y-4 text-slate-600 font-medium">
+            <li class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-accent text-sm"
+                >check_circle</span
+              > Bridgeunterricht für alle Spielstufen
+            </li>
+            <li class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-accent text-sm"
+                >check_circle</span
+              > Einführungskurse & Schulungsreihen
+            </li>
+            <li class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-accent text-sm"
+                >check_circle</span
+              > Turniertraining nach DBV-Standards
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+          <div class="flex items-center gap-4 mb-6">
+            <span class="material-symbols-outlined text-3xl text-info"
+              >psychology</span
+            >
+            <h3 class="text-2xl font-bold">Coaching</h3>
+          </div>
+          <ul class="space-y-4 text-slate-600 font-medium">
+            <li class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-accent text-sm"
+                >check_circle</span
+              > Coaching für ambitionierte Spieler
+            </li>
+            <li class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-accent text-sm"
+                >check_circle</span
+              > Organisation von Bridge-Reisen
+            </li>
+            <li class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-accent text-sm"
+                >check_circle</span
+              > Entwicklung von Lehrmaterialien
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {
+    upcomingHolidays.length > 0 && (
+      <section id="reisen">
+        <div class="container-b">
+          <PageHeader
+            title="Kommende Reisen"
+            description="Entdecken Sie unsere nächsten Bridge-Reisen"
+          />
+          <div class="grid gap-6 mt-12">
+            {upcomingHolidays.map((holiday) => (
+              <Card
+                title={holiday.data.title}
+                images={holiday.data.images}
+                href={`/holiday/${holiday.id}`}
+                dateRange={{
+                  start: holiday.data.startDate,
+                  end: holiday.data.endDate,
+                }}
+                imagePosition="left"
+              />
+            ))}
+          </div>
+          <div class="flex justify-center mt-8">
+            <Button text="Alle Reisen" href="/holiday" />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    recentPosts.length > 0 && (
+      <section id="blog">
+        <div class="container-b">
+          <PageHeader
+            title="Neuester Beitrag"
+            description="Aktuelle Bridge-Neuigkeiten und Tipps"
+          />
+          <div class="max-w-4xl mx-auto mt-12">
+            {recentPosts.map((post) => (
+              <Card
+                title={post.data.title}
+                href={`/blog/${post.id}`}
+                date={post.data.date}
+                images={post.data.images}
+                description={post.data.description}
+                imagePosition="left"
+              />
+            ))}
+          </div>
+          <div class="flex justify-center mt-8">
+            <Button text="Alle Beiträge" href="/blog" variant="outline" />
+          </div>
+        </div>
+      </section>
+    )
+  }
+</Layout>

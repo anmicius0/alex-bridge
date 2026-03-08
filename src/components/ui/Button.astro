@@ -1,0 +1,61 @@
+---
+interface Props {
+  text: string;
+  href?: string;
+  target?: '_self' | '_blank';
+  variant?: 'primary' | 'secondary' | 'outline' | 'warning';
+  size?: 'sm' | 'md' | 'lg';
+  block?: boolean;
+  ariaLabel?: string;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+  download?: boolean | string;
+  loading?: boolean;
+  class?: string;
+}
+
+const {
+  text, href, target = '_self', variant = 'primary', size = 'md', block = false,
+  ariaLabel = text, download = false, type, disabled = false, loading = false,
+  class: extraClass = '',
+} = Astro.props;
+
+const variants = {
+  primary: 'bg-secondary text-slate-900 border-transparent shadow-sm hover:shadow-md hover:bg-[#eac300]',
+  secondary: 'bg-accent text-white border-transparent shadow-sm hover:shadow-md hover:bg-[#ff8a5c]',
+  outline: 'bg-white border-gray-200 text-slate-900 shadow-sm hover:shadow-md hover:border-secondary hover:bg-secondary/5',
+  warning: 'bg-slate-900 text-white border-transparent shadow-sm hover:shadow-md hover:bg-slate-800',
+};
+
+const sizes = {
+  sm: 'px-5 py-2.5 text-sm rounded-xl',
+  md: 'px-6 py-3 text-base rounded-xl',
+  lg: 'px-8 py-4 text-lg rounded-2xl',
+};
+
+const width = block ? 'w-full' : '';
+const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : '';
+
+const Element = href ? 'a' : 'button';
+const displayText = loading ? 'Loading...' : text;
+---
+
+<Element
+  href={href}
+  target={href ? target : undefined}
+  download={href ? download || undefined : undefined}
+  aria-label={ariaLabel}
+  rel={href && target === '_blank' ? 'noopener noreferrer' : undefined}
+  type={!href ? type || 'button' : undefined}
+  disabled={!href ? disabled || loading : undefined}
+  class:list={[
+    'inline-flex items-center justify-center font-bold transition-all duration-200 border select-none',
+    variants[variant], sizes[size], width, extraClass, disabledClasses,
+  ]}
+>
+  <span class="flex items-center gap-2">
+    <slot name="icon-left" />
+    {displayText}
+    <slot name="icon-right" />
+  </span>
+</Element>

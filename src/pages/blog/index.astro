@@ -1,0 +1,18 @@
+---
+import Layout from '@layouts/Layout.astro';
+import PageHeader from '@components/layout/PageHeader.astro';
+import ContentList from '@components/content/ContentList.astro';
+import { getSortedBlogPosts } from '@features/blog/services/blog';
+
+const posts = await getSortedBlogPosts();
+---
+
+<Layout title="Blog - Alexander Bridge" description="Bridge-Tipps und Neuigkeiten">
+  <PageHeader
+    title="Blog"
+    description="Bridge-Tipps und Neuigkeiten"
+  />
+  <div class="mt-12">
+    <ContentList items={posts} imagePosition="left" />
+  </div>
+</Layout>

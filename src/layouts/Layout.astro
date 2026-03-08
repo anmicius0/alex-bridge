@@ -1,0 +1,90 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import Footer from '@components/layout/Footer.astro';
+import Header from '@components/layout/Header.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  width?: 'narrow' | 'standard' | 'wide';
+  isProse?: boolean;
+}
+
+const {
+  title,
+  description = 'Alexander Smirnov ist Ihr professioneller Bridge-Lehrer & Coach (Deutscher Meister). Buchen Sie Premium-Bridge-Kurse, Seminare & Reisen in Lübeck, Travemünde und Online.',
+  ogImage = '/alex/square.webp',
+  width = 'standard',
+  isProse = false,
+} = Astro.props;
+
+const widthMap = {
+  narrow: 'max-w-3xl',
+  standard: 'max-w-5xl',
+  wide: 'max-w-6xl',
+};
+
+const containerClass = widthMap[width];
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <meta name="description" content={description} />
+    <meta
+      name="keywords"
+      content="Bridge Lehrer, Bridge Kurs, Bridge Unterricht, Bridge Coaching, Alexander Smirnov, Bridge Reisen, Lübeck, Travemünde, Timmendorfer Strand, Alleinspiel, Reizung, Gegenspiel"
+    />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="de_DE" />
+    <meta
+      property="og:image"
+      content={new URL(ogImage, Astro.site || Astro.url)}
+    />
+    <meta name="author" content="Alexander Smirnov" />
+
+    <meta
+      name="google-site-verification"
+      content="d1e-XaWdje3IjMVq1UjHI7kV6BjaIXJw6eZNwDg4eOY"
+    />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <ClientRouter />
+    <title>{title}</title>
+  </head>
+  <body class="m-0 bg-primary font-sans">
+    <Header />
+    <main class="container-b" transition:animate="fade">
+      <section class="py-8 md:py-16">
+        <div
+          class:list={[
+            'mx-auto px-4',
+            containerClass,
+            isProse && 'prose prose-lg prose-brutal mx-auto',
+          ]}
+        >
+          <slot />
+        </div>
+      </section>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  ::view-transition-old(root) {
+    animation: 300ms cubic-bezier(0.4, 0, 0.2, 1) both fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 300ms cubic-bezier(0.4, 0, 0.2, 1) both fade-in;
+  }
+</style>

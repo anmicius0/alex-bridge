@@ -1,0 +1,75 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Card from '../ui/Card.astro';
+
+type ContentItem =
+  | CollectionEntry<'blog'>
+  | CollectionEntry<'holiday'>
+  | CollectionEntry<'quiz'>
+  | CollectionEntry<'file'>;
+
+interface Props {
+  items: ContentItem[];
+  imagePosition?: 'top' | 'left';
+  class?: string;
+}
+
+const { items, imagePosition = 'top', class: extraClass = '' } = Astro.props;
+---
+
+{items.length > 0 ? (
+  <div class:list={[
+    imagePosition === 'top' ? "grid gap-8 md:grid-cols-2" : "flex flex-col gap-10 max-w-4xl mx-auto",
+    extraClass
+  ]}>
+    {
+      items.map((item) => {
+        const date = 'date' in item.data ? item.data.date : undefined;
+        const dateRange =
+          'startDate' in item.data && 'endDate' in item.data
+            ? { start: item.data.startDate, end: item.data.endDate }
+            : undefined;
+
+        const isFile = item.collection === 'file';
+        const attachments: string[] = isFile && 'attachments' in item.data ? item.data.attachments : [];
+
+        return (
+          <Card
+            title={item.data.title}
+            href={isFile ? undefined : `/${item.collection}/${item.id}`}
+            date={date}
+            dateRange={dateRange}
+            images={item.data.images}
+            imagePosition={imagePosition}
+            description={item.data.description}
+          >
+            {isFile && attachments.length > 0 && (
+              <ul slot="footer" class="flex flex-wrap gap-3 mt-auto pt-4">
+                {attachments.map((file: string) => {
+                  const fileName = file.split('/').pop() || file;
+                  return (
+                    <li>
+                      <a
+                        href={file}
+                        download={fileName}
+                        target="_blank"
+                        class="inline-flex items-center justify-center h-10 px-5 text-sm font-bold text-slate-900 rounded-xl bg-secondary/70 hover:bg-secondary shadow-sm hover:shadow-md transition-all duration-200"
+                      >
+                        {fileName}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </Card>
+        );
+      })
+    }
+  </div>
+) : (
+  <div class="text-center py-20 bg-white border border-slate-100 rounded-3xl shadow-sm max-w-2xl mx-auto">
+    <p class="text-slate-500 font-display text-2xl font-bold mb-2">Momentan keine Einträge</p>
+    <p class="text-slate-400">Schauen Sie bald wieder vorbei!</p>
+  </div>
+)}

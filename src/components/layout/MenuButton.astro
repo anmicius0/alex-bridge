@@ -1,0 +1,23 @@
+---
+/**
+ * MenuButton Component
+ * Mobile menu toggle button with icon
+ *
+ * Usage:
+ * <MenuButton />
+ */
+
+interface Props {
+  class?: string;
+}
+
+const { class: extraClass = '' } = Astro.props;
+---
+
+<button
+  id="menu-open"
+  aria-label="Open menu"
+  class={`inline-flex items-center justify-center px-6 h-11 rounded-full border border-black/5 bg-white shadow-sm hover:shadow-md transition-all active:scale-95 ${extraClass}`}
+>
+  <span class="text-[11px] font-bold tracking-widest uppercase">Menu</span>
+</button>
