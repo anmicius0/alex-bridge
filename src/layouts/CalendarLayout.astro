@@ -1,0 +1,23 @@
+---
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import type { CalendarEvent } from '@features/calendar/components/Calendar';
+import CalendarWrapper from '@features/calendar/components/CalendarWrapper.astro';
+import Layout from './Layout.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  events: CalendarEvent[];
+}
+
+const { title, description, events } = Astro.props;
+---
+
+<Layout title={title} description={description}>
+  <section class="section">
+    <SectionHeader title={title} description={description} />
+    <div class="max-w-4xl mx-auto mt-8">
+      <CalendarWrapper events={events} />
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,21 @@
+---
+import Calendar from './Calendar.tsx';
+
+interface Props {
+  events: Array<{
+    id: string;
+    title: string;
+    start: string;
+    end: string;
+    allDay: boolean;
+    extendedProps?: {
+      description?: string;
+      location?: string;
+    };
+  }>;
+}
+
+const { events } = Astro.props;
+---
+
+<Calendar client:load events={events} />

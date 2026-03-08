@@ -1,0 +1,44 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ContentList from '@components/content/ContentList.astro';
+import ListLayout from '@layouts/ListLayout.astro';
+
+interface Props {
+  pageTitle: string;
+  title: string;
+  intro: string;
+  items: CollectionEntry<'news' | 'holiday'>[];
+  imagePosition?: 'top' | 'left';
+  sectionHeader?: string;
+}
+
+const {
+  pageTitle,
+  title,
+  intro,
+  items,
+  imagePosition = 'top',
+  sectionHeader,
+} = Astro.props;
+---
+
+<ListLayout
+  pageTitle={pageTitle}
+  title={title}
+  intro={intro}
+  maxWidth="max-w-4xl"
+  isEmpty={items.length === 0}
+>
+  {
+    items.length > 0 && (
+      <div>
+        {sectionHeader && (
+          <div class="mb-10 text-center">
+            <h2 class="mb-4 text-3xl md:text-4xl">{sectionHeader}</h2>
+          </div>
+        )}
+        <ContentList items={items} imagePosition={imagePosition} />
+      </div>
+    )
+  }
+</ListLayout>

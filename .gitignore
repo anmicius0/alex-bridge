@@ -1,0 +1,39 @@
+# -------------------------
+# Build Output & Cache
+# -------------------------
+dist/
+.astro/
+.cache/
+public/files/ # Decap CMS uploaded files (if configured for local git storage)
+
+# -------------------------
+# Dependencies & Package Management
+# -------------------------
+node_modules/
+*.log
+
+# -------------------------
+# Environment & Secrets
+# -------------------------
+.env
+.env.development
+.env.production
+.env.local
+.env.*
+
+# -------------------------
+# Tooling & Editor Settings
+# -------------------------
+# IDEs
+.DS_Store
+.idea/
+.vscode/
+.claude/
+
+# Vercel
+.vercel/
+
+# -------------------------
+# Repomix (Cleanup from template)
+# -------------------------
+.repomixignore

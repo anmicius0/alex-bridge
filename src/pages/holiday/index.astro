@@ -1,0 +1,15 @@
+---
+import CollectionIndex from '@components/layout/CollectionIndex.astro';
+import { getHolidayGroups } from '@features/holiday';
+
+const { upcoming } = await getHolidayGroups();
+---
+
+<CollectionIndex
+  pageTitle="Reisen - Bridge mit Alexander"
+  title="Reisen"
+  intro="Entdecken Sie unsere geplanten Brückenreisen"
+  sectionHeader="Kommende Reisen"
+  items={upcoming}
+  imagePosition="top"
+/>

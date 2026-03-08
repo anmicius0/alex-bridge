@@ -1,0 +1,14 @@
+---
+import CollectionIndex from '@components/layout/CollectionIndex.astro';
+import { getSortedNewsPosts } from '@features/news';
+
+const sortedPosts = await getSortedNewsPosts();
+---
+
+<CollectionIndex
+  pageTitle="News - Bridge mit Alexander"
+  title="News"
+  intro="Bridge-Tipps und Neuigkeiten"
+  items={sortedPosts}
+  imagePosition="left"
+/>

@@ -1,0 +1,22 @@
+---
+// Server-only frontmatter - removed the export const prerender = false
+// and all the fetch logic
+
+import type { CalendarEvent } from '@features/calendar/components/Calendar';
+import { fetchCalendarEvents } from '@features/calendar';
+import CalendarLayout from '@layouts/CalendarLayout.astro';
+import { safeExecute } from '@lib/error-handler';
+
+const result = await safeExecute(fetchCalendarEvents, {
+  logLevel: 'error',
+  context: 'calendar/page/initial-fetch',
+});
+
+const events = (result.success ? result.data : []) as CalendarEvent[];
+
+const title = 'Online-Kurse';
+const description =
+  'Durchsuchen Sie den Zeitplan für bevorstehende Bridge-Kurse. Alle Sitzungen finden live statt und sind interaktiv.';
+---
+
+<CalendarLayout title={title} description={description} events={events} />

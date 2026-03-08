@@ -1,0 +1,39 @@
+---
+import { render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import { getAllNewsPosts } from '@features/news';
+import { getAllHolidays } from '@features/holiday';
+import ContentLayout from '@layouts/ContentLayout.astro';
+
+export async function getStaticPaths() {
+  const news = await getAllNewsPosts();
+  const holidays = await getAllHolidays();
+
+  // Map both collections into a single array of paths
+  const newsPaths = news.map((entry) => ({
+    params: { collection: 'news', slug: entry.id },
+    props: { entry },
+  }));
+
+  const holidayPaths = holidays.map((entry) => ({
+    params: { collection: 'holiday', slug: entry.id },
+    props: { entry },
+  }));
+
+  return [...newsPaths, ...holidayPaths];
+}
+
+type Props = {
+  entry: CollectionEntry<'news'> | CollectionEntry<'holiday'>;
+};
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const description = entry.data.description || entry.data.title;
+const ogImage = entry.data.images?.[0];
+---
+
+<ContentLayout entry={entry} description={description} ogImage={ogImage}>
+  <Content />
+</ContentLayout>

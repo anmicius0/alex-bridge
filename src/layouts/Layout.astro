@@ -1,0 +1,308 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import Footer from '@components/layout/Footer.astro';
+import Header from '@components/layout/Header.astro';
+import '../styles/global.css';
+import '../styles/tailwind.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = 'Alexander Smirnov ist Ihr professioneller Bridge-Lehrer & Coach (Deutscher Meister). Buchen Sie Premium-Bridge-Kurse, Seminare & Reisen in Lübeck, Travemünde und Online.',
+  ogImage = '/alex/square.webp',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="description" content={description} />
+    <meta
+      name="keywords"
+      content="Bridge Lehrer, Bridge Kurs, Bridge Unterricht, Bridge Coaching, Alexander Smirnov, Bridge Reisen, Lübeck, Travemünde, Timmendorfer Strand, Alleinspiel, Reizung, Gegenspiel"
+    />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="de_DE" />
+    <meta
+      property="og:image"
+      content={new URL(ogImage, Astro.site || Astro.url)}
+    />
+    <meta name="author" content="Alexander Smirnov" />
+
+    <meta
+      name="google-site-verification"
+      content="d1e-XaWdje3IjMVq1UjHI7kV6BjaIXJw6eZNwDg4eOY"
+    />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <ClientRouter />
+    <title>{title}</title>
+  </head>
+  <body class="m-0 bg-[var(--color-primary)] font-display">
+    <div
+      id="page-transition"
+      class="page-transition transition-persist transition-overlay"
+    >
+    </div>
+
+    <Header />
+    <main class="container-b">
+      <slot />
+    </main>
+    <Footer />
+
+    <script is:inline>
+      const TRANSITION_MS = 500;
+      const MAX_TRANSITION_TIME = 1200;
+
+      let isTransitioning = false;
+      let transitionTimeout = null;
+
+      function getOverlay() {
+        return document.getElementById('page-transition');
+      }
+
+      function resetOverlay() {
+        const overlay = getOverlay();
+        if (!overlay) return;
+        overlay.classList.remove('sweep-in', 'sweep-out');
+        overlay.style.removeProperty('--enter-ms');
+        overlay.style.removeProperty('--exit-ms');
+        overlay.style.transform = 'translateX(-100%) skewX(-5deg)';
+        overlay.style.willChange = 'auto';
+      }
+
+      function clearTransitionTimeout() {
+        if (transitionTimeout) {
+          clearTimeout(transitionTimeout);
+          transitionTimeout = null;
+        }
+      }
+
+      function resetTransitionState() {
+        clearTransitionTimeout();
+        isTransitioning = false;
+        resetOverlay();
+      }
+
+      function setSafetyTimeout() {
+        clearTransitionTimeout();
+        transitionTimeout = setTimeout(() => {
+          console.warn('Transition timeout - forcing reset');
+          resetTransitionState();
+        }, MAX_TRANSITION_TIME);
+      }
+
+      function playTransitionEnter(enterMs = TRANSITION_MS) {
+        const overlay = getOverlay();
+        if (!overlay) return Promise.resolve();
+
+        return new Promise((resolve) => {
+          overlay.classList.remove('sweep-in', 'sweep-out');
+          overlay.style.transform = 'translateX(-100%) skewX(-5deg)';
+          overlay.style.setProperty('--enter-ms', enterMs + 'ms');
+          overlay.style.willChange = 'transform';
+
+          requestAnimationFrame(() => {
+            overlay.classList.add('sweep-in');
+
+            const timeoutId = setTimeout(() => {
+              overlay.removeEventListener('animationend', onEnd);
+              resolve();
+            }, enterMs + 100);
+
+            const onEnd = () => {
+              clearTimeout(timeoutId);
+              overlay.removeEventListener('animationend', onEnd);
+              resolve();
+            };
+
+            overlay.addEventListener('animationend', onEnd, { once: true });
+          });
+        });
+      }
+
+      function playTransitionExit(exitMs = TRANSITION_MS) {
+        const overlay = getOverlay();
+        if (!overlay) return Promise.resolve();
+
+        return new Promise((resolve) => {
+          overlay.classList.remove('sweep-in');
+          overlay.style.transform = 'translateX(0) skewX(-5deg)';
+          overlay.style.setProperty('--exit-ms', exitMs + 'ms');
+          overlay.style.willChange = 'transform';
+
+          requestAnimationFrame(() => {
+            overlay.classList.add('sweep-out');
+
+            setTimeout(() => {
+              resetOverlay();
+              resolve();
+            }, exitMs + 50);
+          });
+        });
+      }
+
+      document.addEventListener('astro:before-preparation', (e) => {
+        if (isTransitioning) {
+          console.warn('Transition already in progress');
+          return;
+        }
+        e.preventDefault();
+        isTransitioning = true;
+        setSafetyTimeout();
+
+        playTransitionEnter(TRANSITION_MS).then(() => {
+          requestAnimationFrame(() => {
+            window.dispatchEvent(new Event('astro:continue-preparation'));
+          });
+        });
+      });
+
+      document.addEventListener('astro:after-swap', () => {
+        if (!isTransitioning) return;
+        playTransitionExit(TRANSITION_MS).then(() => {
+          resetTransitionState();
+        });
+      });
+
+      document.addEventListener('astro:page-load', () => {
+        if (isTransitioning) {
+          playTransitionExit(TRANSITION_MS).then(() => {
+            resetTransitionState();
+          });
+        }
+      });
+
+      window.addEventListener('popstate', () => {
+        if (isTransitioning) {
+          console.log('Browser navigation during transition - resetting');
+          resetTransitionState();
+        }
+      });
+
+      window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+          console.log('Page restored from cache - resetting');
+          resetTransitionState();
+        }
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && isTransitioning) {
+          console.log('Page visible with active transition - resetting');
+          resetTransitionState();
+        }
+      });
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          const overlay = getOverlay();
+          if (!overlay) return;
+          overlay.style.transform = 'translateX(0) skewX(-5deg)';
+          requestAnimationFrame(() => {
+            playTransitionExit(TRANSITION_MS);
+          });
+        });
+      } else {
+        const overlay = getOverlay();
+        if (overlay) {
+          overlay.style.transform = 'translateX(0) skewX(-5deg)';
+          requestAnimationFrame(() => {
+            playTransitionExit(TRANSITION_MS);
+          });
+        }
+      }
+    </script>
+
+    <style>
+      .page-transition {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 140vw;
+        height: 100vh;
+        background: var(--color-primary);
+        z-index: 9999;
+        transform: translateX(-100%) skewX(-5deg);
+        transform-origin: top left;
+        pointer-events: none;
+      }
+
+      .page-transition::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-left: 3px solid var(--border);
+        border-right: 3px solid var(--border);
+        pointer-events: none;
+      }
+
+      .page-transition.sweep-in {
+        animation: sweepIn var(--enter-ms, 500ms) cubic-bezier(0.65, 0, 0.35, 1)
+          forwards;
+      }
+
+      .page-transition.sweep-out {
+        animation: sweepOut var(--exit-ms, 500ms) cubic-bezier(0.65, 0, 0.35, 1)
+          forwards;
+      }
+
+      @keyframes sweepIn {
+        from {
+          transform: translateX(-100%) skewX(-5deg);
+        }
+        to {
+          transform: translateX(0) skewX(-5deg);
+        }
+      }
+
+      @keyframes sweepOut {
+        from {
+          transform: translateX(0) skewX(-5deg);
+        }
+        to {
+          transform: translateX(100%) skewX(-5deg);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .page-transition {
+          animation: none !important;
+          transition: none !important;
+        }
+
+        .page-transition.sweep-in {
+          transform: translateX(0) skewX(-5deg);
+        }
+
+        .page-transition.sweep-out {
+          transform: translateX(100%) skewX(-5deg);
+        }
+      }
+
+      html:has(:root) {
+        view-transition-name: none;
+      }
+
+      html::view-transition-old(root),
+      html::view-transition-new(root) {
+        animation-duration: 0ms !important;
+      }
+    </style>
+  </body>
+</html>

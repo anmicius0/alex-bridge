@@ -1,0 +1,100 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import Button from '@components/ui/Button.astro';
+import DateDisplay from '@components/content/DateDisplay.astro';
+import ImageCarousel from '@components/content/ImageCarousel.astro';
+import Layout from './Layout.astro';
+
+interface Props {
+  entry:
+    | CollectionEntry<'news'>
+    | CollectionEntry<'holiday'>
+    | CollectionEntry<'quiz'>
+    | CollectionEntry<'file'>;
+  description?: string;
+  ogImage?: string;
+}
+
+const { entry, description, ogImage } = Astro.props;
+const { collection, data } = entry;
+
+const isNews = collection === 'news';
+const isHoliday = collection === 'holiday';
+const isQuiz = collection === 'quiz';
+const isFile = collection === 'file';
+
+const collectionNameMap = {
+  news: 'News',
+  holiday: 'Reisen',
+  quiz: 'Quiz',
+  file: 'Unterlagen',
+};
+
+const backLink = `/${collection}`;
+const backText = `← Zurück zu ${collectionNameMap[collection as keyof typeof collectionNameMap] || 'Übersicht'}`;
+---
+
+<Layout
+  title={`${data.title} - Bridge mit Alexander`}
+  description={description}
+  ogImage={ogImage}
+>
+  <section class="section">
+    <article class="max-w-3xl mx-auto">
+      <div class="mb-5">
+        <Button text={backText} href={backLink} target="_self" />
+      </div>
+
+      {
+        'images' in data && data.images && data.images.length > 1 ? (
+          <div class="mb-6">
+            <ImageCarousel images={data.images} title={data.title} />
+          </div>
+        ) : 'images' in data && data.images && data.images.length === 1 ? (
+          <div class="mb-6 media-frame">
+            <Image
+              src={data.images[0]}
+              alt={data.title}
+              class="object-cover w-full h-96"
+              width={1600}
+              height={768}
+            />
+          </div>
+        ) : null
+      }
+
+      <h1 class="mb-2">{data.title}</h1>
+
+      {
+        (isNews || isQuiz || isFile) && 'date' in data && data.date && (
+          <p class="mb-6 text-sm text-muted-weak">
+            <DateDisplay date={data.date} />
+          </p>
+        )
+      }
+      {
+        isHoliday &&
+          'startDate' in data &&
+          'endDate' in data &&
+          data.startDate &&
+          data.endDate && (
+            <p class="mb-6 text-sm text-muted-weak">
+              <DateDisplay date={data.startDate} /> —{' '}
+              <DateDisplay date={data.endDate} />
+            </p>
+          )
+      }
+
+      <div
+        class="prose prose-lg prose-brutal max-w-prose mx-auto leading-relaxed md:text-xl text-gray-800"
+      >
+        <slot />
+      </div>
+
+      <div class="mt-8">
+        <slot name="after-content" />
+      </div>
+    </article>
+  </section>
+</Layout>

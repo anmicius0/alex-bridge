@@ -1,0 +1,47 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Card from '../ui/Card.astro';
+
+type ContentItem =
+  | CollectionEntry<'news'>
+  | CollectionEntry<'holiday'>
+  | CollectionEntry<'quiz'>
+  | CollectionEntry<'file'>;
+
+interface Props {
+  items: ContentItem[];
+  imagePosition?: 'top' | 'left';
+  class?: string;
+}
+
+const { items, imagePosition = 'top', class: extraClass = '' } = Astro.props;
+---
+
+<div class={`flex flex-col gap-6 ${extraClass}`}>
+  {
+    items.map((item) => {
+      // Safely extract properties based on what exists on the data object
+      const title = item.data.title;
+      const date = 'date' in item.data ? item.data.date : undefined;
+      const startDate =
+        'startDate' in item.data ? item.data.startDate : undefined;
+      const endDate = 'endDate' in item.data ? item.data.endDate : undefined;
+      const images = 'images' in item.data ? item.data.images : undefined;
+
+      return (
+        <Card
+          title={title}
+          href={`/${item.collection}/${item.id}`}
+          date={date}
+          dateRange={
+            startDate && endDate
+              ? { start: startDate, end: endDate }
+              : undefined
+          }
+          images={images}
+          imagePosition={imagePosition}
+        />
+      );
+    })
+  }
+</div>
