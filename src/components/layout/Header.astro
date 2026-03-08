@@ -1,0 +1,118 @@
+---
+import { getSortedBlogPosts } from '@features/blog/services/blog';
+import MenuButton from './MenuButton.astro';
+
+interface Props {
+  class?: string;
+}
+
+const { class: extraClass = '' } = Astro.props;
+
+const blogPosts = await getSortedBlogPosts();
+const latestPost = blogPosts[0];
+
+const links = [
+  { name: 'Blog', path: '/blog' },
+  { name: 'Reisen', path: '/holiday' },
+  { name: 'Kurse', path: '/calendar/online' },
+  { name: 'Quiz', path: '/quiz' },
+  { name: 'Unterlagen', path: '/file' },
+];
+
+const pathname = Astro.url.pathname;
+const isActive = (p: string) => pathname === p || pathname.startsWith(p + '/');
+---
+
+<header class={`sticky top-0 z-50 px-4 py-6 ${extraClass}`}>
+  <div class="max-w-6xl mx-auto bg-white border border-gray-200 rounded-full shadow-sm flex items-center h-16 px-2">
+    <div class="flex items-center pl-6 pr-4 shrink-0">
+      <a href="/" class="hover:opacity-80 transition-opacity">
+        <span class="text-xl md:text-2xl font-display font-black tracking-tighter text-slate-900 whitespace-nowrap">
+          Bridge mit Alexander
+        </span>
+      </a>
+    </div>
+
+    {latestPost && (
+      <div class="hidden md:flex items-center border-l border-gray-100 px-4 flex-1 min-w-0">
+        <a
+          href={`/blog/${latestPost.id}`}
+          class="group flex items-center gap-2 max-w-full"
+        >
+          <span class="bg-accent text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shrink-0">
+            Neu
+          </span>
+          <span class="text-xs font-bold text-slate-500 group-hover:text-accent transition-colors truncate">
+            {latestPost.data.title}
+          </span>
+        </a>
+      </div>
+    )}
+
+    <nav class="hidden lg:flex items-center gap-1 pr-2">
+      {links.map((link) => (
+        <a
+          href={link.path}
+          class={`px-4 py-2 rounded-full text-[14px] font-bold transition-all duration-200 ${
+            isActive(link.path)
+              ? 'bg-secondary text-slate-900'
+              : 'text-slate-600 hover:bg-gray-50 hover:text-slate-900'
+          }`}
+        >
+          {link.name}
+        </a>
+      ))}
+    </nav>
+
+    <div class="flex lg:hidden items-center ml-auto pr-2 gap-2">
+      {latestPost && (
+        <a href={`/blog/${latestPost.id}`} class="md:hidden bg-accent/10 text-accent text-[10px] font-black px-2 py-1 rounded-full">
+          NEU
+        </a>
+      )}
+      <MenuButton />
+    </div>
+  </div>
+
+  <div
+    id="menu-content"
+    class="fixed inset-0 bg-primary -translate-x-full transition-transform duration-500 ease-in-out z-60 overflow-y-auto"
+  >
+    <div class="flex items-center justify-between p-8 border-b border-gray-200/50">
+      <span class="text-2xl font-display font-black tracking-tight text-slate-900">
+        Bridge mit Alexander
+      </span>
+      <button
+        id="menu-close"
+        aria-label="Close menu"
+        class="px-6 py-3 bg-white text-slate-900 text-sm font-bold rounded-full border border-gray-200 uppercase tracking-widest shadow-sm hover:bg-gray-50"
+      >
+        Close
+      </button>
+    </div>
+
+    <ul class="flex flex-col p-8 gap-4">
+      {
+        links.map((link) => (
+          <li>
+            <a
+              href={link.path}
+              class={`block p-5 rounded-2xl text-xl font-bold transition-all ${
+                isActive(link.path)
+                  ? 'bg-secondary text-slate-900 shadow-sm'
+                  : 'text-slate-600 hover:bg-white hover:shadow-sm'
+              }`}
+            >
+              {link.name}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</header>
+
+<script>
+  import { initMobileMenu } from '@hooks/use-mobile-menu';
+  initMobileMenu();
+</script>

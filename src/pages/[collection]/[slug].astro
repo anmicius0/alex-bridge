@@ -1,0 +1,123 @@
+---
+import { getAllBlogPosts } from '@features/blog/services/blog';
+import { getAllHolidays } from '@features/holiday/services/holiday';
+import { getSortedQuizzes } from '@features/quiz/services/quizzes';
+import QuizQuestion from '@features/quiz/components/QuizQuestion.astro';
+import ContextualDate from '@components/content/ContextualDate.astro';
+import ImageCarousel from '@components/content/ImageCarousel.astro';
+import Button from '@components/ui/Button.astro';
+import Layout from '@layouts/Layout.astro';
+import { ErrorHandler } from '@lib/error-handler';
+import { Image } from 'astro:assets';
+import { render, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  let blog: CollectionEntry<'blog'>[] = [];
+  let holidays: CollectionEntry<'holiday'>[] = [];
+  let quizzes: CollectionEntry<'quiz'>[] = [];
+
+  try {
+    blog = await getAllBlogPosts();
+  } catch (error) {
+    ErrorHandler.logError(error, 'slug/blog/getStaticPaths');
+  }
+
+  try {
+    holidays = await getAllHolidays();
+  } catch (error) {
+    ErrorHandler.logError(error, 'slug/holiday/getStaticPaths');
+  }
+
+  try {
+    quizzes = await getSortedQuizzes();
+  } catch (error) {
+    ErrorHandler.logError(error, 'slug/quiz/getStaticPaths');
+  }
+
+  const blogPaths = blog.map((entry) => ({
+    params: { collection: 'blog', slug: entry.id },
+    props: { entry },
+  }));
+
+  const holidayPaths = holidays.map((entry) => ({
+    params: { collection: 'holiday', slug: entry.id },
+    props: { entry },
+  }));
+
+  const quizPaths = quizzes.map((quiz, index) => ({
+    params: { collection: 'quiz', slug: quiz.id },
+    props: {
+      entry: quiz,
+      nextQuestionUrl:
+        index < quizzes.length - 1
+          ? `/quiz/${quizzes[index + 1]?.id}`
+          : undefined,
+    },
+  }));
+
+  return [...blogPaths, ...holidayPaths, ...quizPaths];
+}
+
+type Props =
+  | { entry: CollectionEntry<'blog'>; nextQuestionUrl?: undefined }
+  | { entry: CollectionEntry<'holiday'>; nextQuestionUrl?: undefined }
+  | { entry: CollectionEntry<'quiz'>; nextQuestionUrl: string | undefined };
+
+const { entry, nextQuestionUrl } = Astro.props as Props;
+const { Content } = await render(entry);
+const { data, collection } = entry;
+
+const description = data.description || data.title;
+const ogImage = data.images?.[0];
+
+const backLinks = { blog: 'Blog', holiday: 'Reisen', quiz: 'Quiz' };
+const backLink = `/${collection}`;
+const backText = `Zurück zu ${backLinks[collection as keyof typeof backLinks]}`;
+const isQuiz = collection === 'quiz';
+---
+
+<Layout title={data.title} description={description} ogImage={ogImage} width="narrow">
+  <article class="space-y-10">
+    <div class="not-prose">
+      <Button text={backText} href={backLink} variant="outline" size="sm" />
+    </div>
+
+    <header class="space-y-6">
+      <div class="space-y-4">
+        <ContextualDate data={data} />
+
+        <h1 class="text-slate-900 leading-[1.1] text-balance">{data.title}</h1>
+      </div>
+
+      {
+        data.images && data.images.length > 1 ? (
+          <ImageCarousel images={data.images} title={data.title} />
+        ) : data.images?.[0] ? (
+          <div class="media-frame overflow-hidden rounded-3xl border border-gray-100 shadow-md">
+            <Image
+              src={data.images[0]}
+              alt={data.title}
+              class="aspect-video w-full object-cover"
+              width={1200}
+              height={675}
+            />
+          </div>
+        ) : null
+      }
+    </header>
+
+    <div
+      class="prose prose-lg prose-slate mx-auto text-slate-700 leading-relaxed selection:bg-accent/20"
+    >
+      <Content />
+      {isQuiz && (
+        <QuizQuestion
+          slot="after-content"
+          choices={data.choices}
+          explanation={data.explanation}
+          nextQuestionUrl={nextQuestionUrl}
+        />
+      )}
+    </div>
+  </article>
+</Layout>

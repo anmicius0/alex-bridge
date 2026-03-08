@@ -1,0 +1,18 @@
+---
+import Layout from '@layouts/Layout.astro';
+import PageHeader from '@components/layout/PageHeader.astro';
+import ContentList from '@components/content/ContentList.astro';
+import { getHolidayGroups } from '@features/holiday/services/holiday';
+
+const { upcoming } = await getHolidayGroups();
+---
+
+<Layout title="Reisen - Alexander Bridge" description="Entdecken Sie unsere geplanten Bridge-Reisen">
+  <PageHeader
+    title="Reisen"
+    description="Entdecken Sie unsere geplanten Bridge-Reisen"
+  />
+  <div class="mt-12">
+    <ContentList items={upcoming} imagePosition="left" />
+  </div>
+</Layout>

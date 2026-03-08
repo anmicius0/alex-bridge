@@ -1,0 +1,26 @@
+---
+title: Quiz vom 2026-06-07
+date: 2026-06-07
+choices:
+  - choiceText: 13FV
+    isCorrect: false
+  - choiceText: 15 FV
+    isCorrect: true
+  - choiceText: 17 FV
+    isCorrect: false
+  - choiceText: 20 FV
+    isCorrect: false
+explanation: 15 FV, 3♠ vom Partner zeigt 11-12FV
+---
+
+### Die Reizung geht folgendermaßen:
+
+#### Reizung
+
+| Nord | Süd |
+| ---- | --- |
+| 1♦   | 1♥  |
+| 1♠   | 3♠  |
+| 4♠   | ?   |
+
+Wie viele Punkte (FV) muss Nord mindestens haben?

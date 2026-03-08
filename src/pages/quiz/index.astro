@@ -1,0 +1,18 @@
+---
+import Layout from '@layouts/Layout.astro';
+import PageHeader from '@components/layout/PageHeader.astro';
+import ContentList from '@components/content/ContentList.astro';
+import { getSortedQuizzes } from '@features/quiz/services/quizzes';
+
+const quizzes = await getSortedQuizzes();
+---
+
+<Layout title="Quiz - Alexander Bridge" description="Testen Sie Ihr Bridge-Wissen">
+  <PageHeader
+    title="Quiz"
+    description="Testen Sie Ihr Bridge-Wissen mit unseren täglichen Fragen. Jeden Tag erscheint ein neues Rätsel!"
+  />
+  <div class="mt-12">
+    <ContentList items={quizzes} imagePosition="left" />
+  </div>
+</Layout>

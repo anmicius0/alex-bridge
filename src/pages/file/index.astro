@@ -1,0 +1,18 @@
+---
+import Layout from '@layouts/Layout.astro';
+import PageHeader from '@components/layout/PageHeader.astro';
+import ContentList from '@components/content/ContentList.astro';
+import { getSortedFiles } from '@features/file/services/file';
+
+const fileDocuments = await getSortedFiles();
+---
+
+<Layout title="Unterlagen - Alexander Bridge" description="Laden Sie Ihre Bridge-Materialien herunter">
+  <PageHeader
+    title="Unterlagen"
+    description="Laden Sie Ihre Bridge-Materialien und Dokumente herunter."
+  />
+  <div class="mt-12">
+    <ContentList items={fileDocuments} />
+  </div>
+</Layout>

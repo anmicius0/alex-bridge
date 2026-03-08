@@ -1,0 +1,22 @@
+# -------------------------
+# Build Output & Dependencies
+# -------------------------
+dist/
+node_modules/
+.astro/
+
+# Deployment & Caches
+.vercel/
+.cache/
+
+# -------------------------
+# Compiled Assets
+# -------------------------
+# Compiled CSS must be excluded
+src/styles/*.css
+
+# -------------------------
+# CMS Configuration
+# -------------------------
+# Decap CMS HTML/YAML config (often not standard code)
+public/admin/
